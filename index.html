@@ -1737,7 +1737,7 @@
                             <div class="table-container"><table><thead><tr><th>Department</th><th>Actions</th></tr></thead><tbody id="departmentsList"></tbody></table></div>
                             
                             <hr><h4>Doctor Management</h4>
-                            <div class="form-group"><label>Add New Doctor</label><div class="d-flex gap-2"><input type="text" class="form-control" id="newDoctor" placeholder="Enter doctor name (e.g., Dr. Emad)"><button class="btn btn-success" onclick="addDoctor()">Add</button></div></div>
+                            <div class="form-group"><label>Add New Doctor</label><div class="d-flex gap-2"><input type="text" class="form-control" id="newDoctor" placeholder="Enter doctor name (e.g., Dr. Emad Jabbar Najim Jabbar Najim)"><button class="btn btn-success" onclick="addDoctor()">Add</button></div></div>
                             <div class="table-container"><table><thead><tr><th>Doctor Name</th><th>Actions</th></tr></thead><tbody id="doctorsList"></tbody></table></div>
                             
                             <hr><div style="display: flex; gap: 10px; flex-wrap: wrap;"><button class="btn btn-danger" onclick="clearAllData()">🗑️ Clear All Data</button><button class="btn btn-warning" onclick="backupData()">💾 Backup Data</button><button class="btn btn-success" onclick="restoreData()">📂 Restore Data</button><button class="btn btn-info" onclick="logout()">🚪 Logout</button></div>
@@ -1787,15 +1787,15 @@
         // ==================== GLOBAL VARIABLES ====================
         const SETTINGS_PASSWORD = 'Password@123456';
         const USERS = {
-            'AlmutahidaClinic': { password: 'Clinic123', doctor: 'Dr. Emad' },
-            'AlmutahidaClinic2': { password: 'Password2', doctor: 'Dr. Mustafa Abbas' }
+            'AlmutahidaClinic': { password: 'Clinic123', doctor: 'Dr. Emad Jabbar Najim Jabbar Najim' },
+            'AlmutahidaClinic2': { password: 'Password2', doctor: 'Dr. Mustafa Abbas Hussien Abbas' }
         };
         
         let currentPatientPage = 1;
         let currentPrescriptionPage = 1;
         const pageSize = 50;
         let departments = ['IT', 'HR', 'Helper'];
-        let doctors = ['Dr. Emad', 'Dr. Mustafa Abbas'];
+        let doctors = ['Dr. Emad Jabbar Najim Jabbar Najim', 'Dr. Mustafa Abbas Hussien Abbas Hussien'];
         let currentUser = '';
         let currentUserDoctor = '';
         let currentHistoryPatient = null;
@@ -2233,7 +2233,7 @@
             else localStorage.setItem('departments', JSON.stringify(departments));
             const savedDoctors = localStorage.getItem('doctors');
             if (savedDoctors) doctors = JSON.parse(savedDoctors);
-            else { doctors = ['Dr. Emad', 'Dr. Mustafa Abbas']; localStorage.setItem('doctors', JSON.stringify(doctors)); }
+            else { doctors = ['Dr. Emad Jabbar Najim Jabbar Najim', 'Dr. Mustafa Abbas Hussien Abbas Hussien']; localStorage.setItem('doctors', JSON.stringify(doctors)); }
             updateDepartmentDropdowns();
             updateDoctorDropdowns();
         }
@@ -2254,8 +2254,8 @@
                 const select = document.getElementById(id);
                 if (select) {
                     const currentValue = select.value;
-                    if (currentUser === 'AlmutahidaClinic2') select.innerHTML = '<option value="">Select Doctor</option><option value="Dr. Mustafa Abbas">Dr. Mustafa Abbas</option>';
-                    else select.innerHTML = '<option value="">Select Doctor</option><option value="Dr. Emad">Dr. Emad</option>';
+                    if (currentUser === 'AlmutahidaClinic2') select.innerHTML = '<option value="">Select Doctor</option><option value="Dr. Mustafa Abbas Hussien Abbas">Dr. Mustafa Abbas Hussien Abbas</option>';
+                    else select.innerHTML = '<option value="">Select Doctor</option><option value="Dr. Emad Jabbar Najim Jabbar Najim">Dr. Emad Jabbar Najim Jabbar Najim</option>';
                     if (!currentValue || currentValue === '') select.value = currentUserDoctor;
                     else if (currentValue && doctors.includes(currentValue)) select.value = currentValue;
                 }
@@ -2890,8 +2890,8 @@
             const records = await getAllMedicalRecords();
             const followUps = await getAllFollowUps();
             let filtered = records;
-            if (currentUser === 'AlmutahidaClinic2') filtered = records.filter(r => r.doctorName === 'Dr. Mustafa Abbas');
-            else if (currentUser === 'AlmutahidaClinic') filtered = records.filter(r => r.doctorName === 'Dr. Emad');
+            if (currentUser === 'AlmutahidaClinic2') filtered = records.filter(r => r.doctorName === 'Dr. Mustafa Abbas Hussien Abbas');
+            else if (currentUser === 'AlmutahidaClinic') filtered = records.filter(r => r.doctorName === 'Dr. Emad Jabbar Najim Jabbar Najim');
             filtered.sort((a,b) => (b.visitDate||'').localeCompare(a.visitDate||''));
             const tbody = document.getElementById('recordsTableBody');
             if (!filtered.length) tbody.innerHTML = '.<td colspan="10" class="text-center">No records found';
@@ -2928,13 +2928,13 @@
                 select.innerHTML = '<option value="">Select Patient</option>' + patients.map(p => `<option value="${p.id}">${p.fullName} (ID: ${p.id})</option>`).join('');
             });
             const doctorSelect = document.getElementById('recordDoctor');
-            if (currentUser === 'AlmutahidaClinic2') doctorSelect.innerHTML = '<option value="">Select Doctor</option><option value="Dr. Mustafa Abbas">Dr. Mustafa Abbas</option>';
-            else doctorSelect.innerHTML = '<option value="">Select Doctor</option><option value="Dr. Emad">Dr. Emad</option>';
+            if (currentUser === 'AlmutahidaClinic2') doctorSelect.innerHTML = '<option value="">Select Doctor</option><option value="Dr. Mustafa Abbas Hussien Abbas">Dr. Mustafa Abbas Hussien Abbas</option>';
+            else doctorSelect.innerHTML = '<option value="">Select Doctor</option><option value="Dr. Emad Jabbar Najim Jabbar Najim">Dr. Emad Jabbar Najim Jabbar Najim</option>';
             if (id) {
                 getAllMedicalRecords().then(records => {
                     const r = records.find(r => r.id == id);
                     if (r) {
-                        if ((currentUser==='AlmutahidaClinic2' && r.doctorName!=='Dr. Mustafa Abbas') || (currentUser==='AlmutahidaClinic' && r.doctorName!=='Dr. Emad')) { showAlert('Cannot edit others\' records', 'warning'); closeModal('recordModal'); return; }
+                        if ((currentUser==='AlmutahidaClinic2' && r.doctorName!=='Dr. Mustafa Abbas Hussien Abbas') || (currentUser==='AlmutahidaClinic' && r.doctorName!=='Dr. Emad Jabbar Najim')) { showAlert('Cannot edit others\' records', 'warning'); closeModal('recordModal'); return; }
                         document.getElementById('recordId').value = r.id;
                         document.getElementById('recordIdField').value = r.id;
                         document.getElementById('recordPatient').value = r.patientId;
@@ -2966,8 +2966,8 @@
             const term = document.getElementById('recordSearch').value.toLowerCase();
             getAllMedicalRecords().then(records => {
                 let filtered = records;
-                if (currentUser === 'AlmutahidaClinic2') filtered = records.filter(r => r.doctorName === 'Dr. Mustafa Abbas');
-                else if (currentUser === 'AlmutahidaClinic') filtered = records.filter(r => r.doctorName === 'Dr. Emad');
+                if (currentUser === 'AlmutahidaClinic2') filtered = records.filter(r => r.doctorName === 'Dr. Mustafa Abbas Hussien Abbas');
+                else if (currentUser === 'AlmutahidaClinic') filtered = records.filter(r => r.doctorName === 'Dr. Emad Jabbar Najim');
                 const f = filtered.filter(r => (r.patientName||'').toLowerCase().includes(term) || (r.patientId||'').toLowerCase().includes(term));
                 const tbody = document.getElementById('recordsTableBody');
                 tbody.innerHTML = f.slice(0,50).map(r => {
@@ -3008,7 +3008,7 @@
             if (!recordId && records.some(r => r.id == newId)) { showAlert('ID exists', 'danger'); return; }
             if (recordId) {
                 const existing = records.find(r => r.id == recordId);
-                if (existing && ((currentUser==='AlmutahidaClinic2' && existing.doctorName!=='Dr. Mustafa Abbas') || (currentUser==='AlmutahidaClinic' && existing.doctorName!=='Dr. Emad'))) { showAlert('Cannot edit others\' records', 'danger'); return; }
+                if (existing && ((currentUser==='AlmutahidaClinic2' && existing.doctorName!=='Dr. Mustafa Abbas Hussien Abbas') || (currentUser==='AlmutahidaClinic' && existing.doctorName!=='Dr. Emad Jabbar Najim'))) { showAlert('Cannot edit others\' records', 'danger'); return; }
             }
             const followUpRequired = document.getElementById('followUpRequired')?.checked || false;
             const followUpDate = document.getElementById('followUpDate')?.value || null;
@@ -3083,13 +3083,13 @@
             const patientSelect = document.getElementById('prescriptionPatient');
             patientSelect.innerHTML = '<option value="">Select Patient</option>' + patients.map(p => `<option value="${p.id}">${p.fullName} (ID: ${p.id})</option>`).join('');
             const doctorSelect = document.getElementById('prescriptionDoctor');
-            if (currentUser === 'AlmutahidaClinic2') doctorSelect.innerHTML = '<option value="">Select Doctor</option><option value="Dr. Mustafa Abbas">Dr. Mustafa Abbas</option>';
-            else doctorSelect.innerHTML = '<option value="">Select Doctor</option><option value="Dr. Emad">Dr. Emad</option>';
+            if (currentUser === 'AlmutahidaClinic2') doctorSelect.innerHTML = '<option value="">Select Doctor</option><option value="Dr. Mustafa Abbas Hussien Abbas">Dr. Mustafa Abbas Hussien Abbas</option>';
+            else doctorSelect.innerHTML = '<option value="">Select Doctor</option><option value="Dr. Emad Jabbar Najim">Dr. Emad Jabbar Najim</option>';
             if (id) {
                 const pres = await getAllPrescriptions();
                 const rx = pres.find(r => r.id == id);
                 if (rx) {
-                    if ((currentUser==='AlmutahidaClinic2' && rx.doctorName!=='Dr. Mustafa Abbas') || (currentUser==='AlmutahidaClinic' && rx.doctorName!=='Dr. Emad')) { showAlert('Cannot edit others\' prescriptions', 'warning'); closeModal('prescriptionModal'); return; }
+                    if ((currentUser==='AlmutahidaClinic2' && rx.doctorName!=='Dr. Mustafa Abbas Hussien Abbas') || (currentUser==='AlmutahidaClinic' && rx.doctorName!=='Dr. Emad Jabbar Najim')) { showAlert('Cannot edit others\' prescriptions', 'warning'); closeModal('prescriptionModal'); return; }
                     document.getElementById('prescriptionId').value = rx.id;
                     document.getElementById('prescriptionIdField').value = rx.id;
                     document.getElementById('prescriptionEmployeeId').value = rx.employeeId || '';
@@ -3135,7 +3135,7 @@
             try {
                 if (prescriptionId && prescriptions.some(r => r.id == prescriptionId)) {
                     const existing = prescriptions.find(r => r.id == prescriptionId);
-                    if ((currentUser==='AlmutahidaClinic2' && existing.doctorName!=='Dr. Mustafa Abbas') || (currentUser==='AlmutahidaClinic' && existing.doctorName!=='Dr. Emad')) { showAlert('Cannot edit others\' prescriptions', 'danger'); return; }
+                    if ((currentUser==='AlmutahidaClinic2' && existing.doctorName!=='Dr. Mustafa Abbas Hussien Abbas') || (currentUser==='AlmutahidaClinic' && existing.doctorName!=='Dr. Emad Jabbar Najim')) { showAlert('Cannot edit others\' prescriptions', 'danger'); return; }
                     const idx = prescriptions.findIndex(r => r.id == prescriptionId);
                     if (idx !== -1) { prescriptions[idx] = { ...prescriptions[idx], ...prescription, updatedBy: currentUser, updatedAt: new Date().toISOString() }; await savePrescriptions(prescriptions); await addActivityLog('Update Prescription', `Updated ${prescriptionId}`, 'info'); showAlert('Prescription updated', 'success'); }
                 } else { prescriptions.push(prescription); await savePrescriptions(prescriptions); await addActivityLog('Add Prescription', `Added ${prescriptionId}`, 'success'); showAlert('Prescription saved', 'success'); }
@@ -3148,8 +3148,8 @@
             currentPrescriptionPage = page;
             let prescriptions = await getAllPrescriptions();
             prescriptions.sort((a,b) => (b.prescribedDate||'').localeCompare(a.prescribedDate||''));
-            if (currentUser === 'AlmutahidaClinic2') prescriptions = prescriptions.filter(p => p.doctorName === 'Dr. Mustafa Abbas');
-            else if (currentUser === 'AlmutahidaClinic') prescriptions = prescriptions.filter(p => p.doctorName === 'Dr. Emad');
+            if (currentUser === 'AlmutahidaClinic2') prescriptions = prescriptions.filter(p => p.doctorName === 'Dr. Mustafa Abbas Hussien Abbas');
+            else if (currentUser === 'AlmutahidaClinic') prescriptions = prescriptions.filter(p => p.doctorName === 'Dr. Emad Jabbar Najim');
             const start = (page-1)*pageSize;
             const paginated = prescriptions.slice(start, start+pageSize);
             const tbody = document.getElementById('prescriptionsTableBody');
@@ -3176,7 +3176,7 @@
             if (confirm('Delete this prescription?')) {
                 const prescriptions = await getAllPrescriptions();
                 const rx = prescriptions.find(p => p.id == id);
-                if ((currentUser==='AlmutahidaClinic2' && rx?.doctorName!=='Dr. Mustafa Abbas') || (currentUser==='AlmutahidaClinic' && rx?.doctorName!=='Dr. Emad')) { showAlert('Cannot delete others\' prescriptions', 'danger'); return; }
+                if ((currentUser==='AlmutahidaClinic2' && rx?.doctorName!=='Dr. Mustafa Abbas Hussien Abbas') || (currentUser==='AlmutahidaClinic' && rx?.doctorName!=='Dr. Emad Jabbar Najim')) { showAlert('Cannot delete others\' prescriptions', 'danger'); return; }
                 const filtered = prescriptions.filter(r => r.id != id);
                 await savePrescriptions(filtered);
                 if (rx) await addActivityLog('Delete Prescription', `Deleted ${id}`, 'warning');
@@ -3188,8 +3188,8 @@
             const term = document.getElementById('prescriptionSearch').value.toLowerCase();
             getAllPrescriptions().then(prescriptions => {
                 let filtered = prescriptions;
-                if (currentUser === 'AlmutahidaClinic2') filtered = prescriptions.filter(p => p.doctorName === 'Dr. Mustafa Abbas');
-                else if (currentUser === 'AlmutahidaClinic') filtered = prescriptions.filter(p => p.doctorName === 'Dr. Emad');
+                if (currentUser === 'AlmutahidaClinic2') filtered = prescriptions.filter(p => p.doctorName === 'Dr. Mustafa Abbas Hussien Abbas');
+                else if (currentUser === 'AlmutahidaClinic') filtered = prescriptions.filter(p => p.doctorName === 'Dr. Emad Jabbar Najim');
                 const f = filtered.filter(rx => (rx.patientName||'').toLowerCase().includes(term) || (rx.patientId||'').toLowerCase().includes(term) || (rx.employeeId||'').toLowerCase().includes(term) || (rx.id||'').toLowerCase().includes(term));
                 const tbody = document.getElementById('prescriptionsTableBody');
                 tbody.innerHTML = f.slice(0,50).map(rx => `
@@ -3490,8 +3490,8 @@
             let pres = await getAllPrescriptions();
             if (from) pres = pres.filter(p => p.prescribedDate >= from);
             if (to) pres = pres.filter(p => p.prescribedDate <= to);
-            if (currentUser === 'AlmutahidaClinic2') pres = pres.filter(p => p.doctorName === 'Dr. Mustafa Abbas');
-            else if (currentUser === 'AlmutahidaClinic') pres = pres.filter(p => p.doctorName === 'Dr. Emad');
+            if (currentUser === 'AlmutahidaClinic2') pres = pres.filter(p => p.doctorName === 'Dr. Mustafa Abbas Hussien Abbas');
+            else if (currentUser === 'AlmutahidaClinic') pres = pres.filter(p => p.doctorName === 'Dr. Emad Jabbar Najim');
             let r = `PRESCRIPTION REPORT\n${'='.repeat(50)}\nPeriod: ${from||'All'} - ${to||'All'}\nTotal: ${pres.length}\n\n`;
             pres.forEach((p,i) => { r += `${i+1}. ${p.prescribedDate} - ${p.patientName} - ${p.medicationName} (${p.doctorName})\n`; });
             return r;
@@ -3525,8 +3525,8 @@
                 let pres = await getAllPrescriptions();
                 if (from) pres = pres.filter(p => p.prescribedDate >= from);
                 if (to) pres = pres.filter(p => p.prescribedDate <= to);
-                if (currentUser==='AlmutahidaClinic2') pres = pres.filter(p=>p.doctorName==='Dr. Mustafa Abbas');
-                else if (currentUser==='AlmutahidaClinic') pres = pres.filter(p=>p.doctorName==='Dr. Emad');
+                if (currentUser==='AlmutahidaClinic2') pres = pres.filter(p=>p.doctorName==='Dr. Mustafa Abbas Hussien Abbas');
+                else if (currentUser==='AlmutahidaClinic') pres = pres.filter(p=>p.doctorName==='Dr. Emad Jabbar Najim');
                 data = pres.map(p => [p.id, p.prescribedDate, p.patientName, p.doctorName, p.medicationName]);
             } else {
                 title='Follow-up Report'; headers=['Patient','Doctor','Due Date','Status'];
@@ -3586,7 +3586,7 @@
         }
         function loadDoctorsList() {
             document.getElementById('doctorsList').innerHTML = doctors.map(d => {
-                const canDel = (currentUser==='AlmutahidaClinic' && d!=='Dr. Emad' && d!=='Dr. Mustafa Abbas') || (currentUser==='AlmutahidaClinic2' && d!=='Dr. Mustafa Abbas');
+                const canDel = (currentUser==='AlmutahidaClinic' && d!=='Dr. Emad Jabbar Najim' && d!=='Dr. Mustafa Abbas Hussien Abbas') || (currentUser==='AlmutahidaClinic2' && d!=='Dr. Mustafa Abbas Hussien Abbas');
                 return `<tr><td>${d}</td><td>${canDel ? `<button class="btn btn-sm btn-danger" onclick="deleteDoctor('${d}')">🗑️</button>` : '<span class="badge">System</span>'}</td></tr>`;
             }).join('');
         }
@@ -3598,7 +3598,7 @@
             doctors.push(newDoc); localStorage.setItem('doctors', JSON.stringify(doctors)); document.getElementById('newDoctor').value = ''; loadDoctorsList(); updateDoctorDropdowns(); addActivityLog('Add Doctor', `Added ${newDoc}`, 'success'); showAlert('Doctor added', 'success');
         }
         function deleteDoctor(doc) {
-            if (doc === 'Dr. Emad' || doc === 'Dr. Mustafa Abbas') { showAlert('System doctor cannot be deleted', 'danger'); return; }
+            if (doc === 'Dr. Emad Jabbar Najim' || doc === 'Dr. Mustafa Abbas Hussien Abbas') { showAlert('System doctor cannot be deleted', 'danger'); return; }
             if (confirm(`Delete ${doc}?`)) { doctors = doctors.filter(d => d !== doc); localStorage.setItem('doctors', JSON.stringify(doctors)); loadDoctorsList(); updateDoctorDropdowns(); addActivityLog('Delete Doctor', `Deleted ${doc}`, 'warning'); showAlert('Deleted', 'success'); }
         }
         async function clearAllData() {
