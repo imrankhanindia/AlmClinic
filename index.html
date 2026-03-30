@@ -1488,6 +1488,38 @@
             height: 60px;
             object-fit: contain;
         }
+
+        /* Employee ID Search Field for Medical Record */
+        .employee-search-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        .employee-search-group .form-control {
+            flex: 2;
+            min-width: 200px;
+        }
+        .search-result-popup {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            max-height: 200px;
+            overflow-y: auto;
+            position: absolute;
+            z-index: 1000;
+            width: 300px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .search-result-item-popup {
+            padding: 8px 12px;
+            cursor: pointer;
+            border-bottom: 1px solid #eee;
+        }
+        .search-result-item-popup:hover {
+            background: #fef9e6;
+        }
     </style>
     <!-- Include jsPDF for PDF generation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -1737,7 +1769,7 @@
                             <div class="table-container"><table><thead><tr><th>Department</th><th>Actions</th></tr></thead><tbody id="departmentsList"></tbody></table></div>
                             
                             <hr><h4>Doctor Management</h4>
-                            <div class="form-group"><label>Add New Doctor</label><div class="d-flex gap-2"><input type="text" class="form-control" id="newDoctor" placeholder="Enter doctor name (e.g., Dr. Emad Jabbar Najim Jabbar Najim)"><button class="btn btn-success" onclick="addDoctor()">Add</button></div></div>
+                            <div class="form-group"><label>Add New Doctor</label><div class="d-flex gap-2"><input type="text" class="form-control" id="newDoctor" placeholder="Enter doctor name (e.g., Dr. Emad Jabbar Najim)"><button class="btn btn-success" onclick="addDoctor()">Add</button></div></div>
                             <div class="table-container"><table><thead><tr><th>Doctor Name</th><th>Actions</th></tr></thead><tbody id="doctorsList"></tbody></table></div>
                             
                             <hr><div style="display: flex; gap: 10px; flex-wrap: wrap;"><button class="btn btn-danger" onclick="clearAllData()">🗑️ Clear All Data</button><button class="btn btn-warning" onclick="backupData()">💾 Backup Data</button><button class="btn btn-success" onclick="restoreData()">📂 Restore Data</button><button class="btn btn-info" onclick="logout()">🚪 Logout</button></div>
@@ -1761,8 +1793,31 @@
         <!-- Import Modal -->
         <div id="importModal" class="modal"><div class="modal-content import-modal-content"><div class="modal-header"><h3>📥 Import Patients from Excel</h3><span class="close" onclick="closeModal('importModal')">&times;</span></div><div class="modal-body"><div class="import-instructions"><h4>📋 Instructions:</h4><ul><li>Upload an Excel file (.xlsx, .xls, or .csv)</li><li>Required columns: <strong>ID, Full Name</strong></li><li>Duplicate IDs will be skipped</li></ul><div style="margin-top: 10px;"><button class="btn btn-sm btn-info" onclick="downloadSampleTemplate()">📥 Download Sample Template</button></div></div><div class="file-upload-area" onclick="document.getElementById('excelFileInput').click()"><i>📁</i><p>Click to select Excel file or drag and drop</p><small>Supported formats: .xlsx, .xls, .csv</small><input type="file" id="excelFileInput" accept=".xlsx,.xls,.csv" style="display: none;" onchange="handleFileSelect(event)"></div><div id="importPreview" style="display: none;"><h4>Preview Data</h4><div class="import-stats"><div class="import-stat-item"><div class="import-stat-value" id="totalRows">0</div><div class="import-stat-label">Total Rows</div></div><div class="import-stat-item"><div class="import-stat-value" id="validRows">0</div><div class="import-stat-label">Valid Rows</div></div><div class="import-stat-item"><div class="import-stat-value" id="duplicateRows">0</div><div class="import-stat-label">Duplicates</div></div></div><div id="importWarnings" class="import-warning" style="display: none;"></div><div class="import-preview" id="importPreviewTable"></div></div></div><div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('importModal')">Cancel</button><button class="btn btn-success" id="importButton" onclick="importPatients()" disabled>Import Patients</button></div></div></div>
 
-        <!-- Record Modal with Unlimited External Reports (IndexedDB storage) -->
-        <div id="recordModal" class="modal"><div class="modal-content"><div class="modal-header"><h3>Add Medical Record</h3><span class="close" onclick="closeModal('recordModal')">&times;</span></div><div class="modal-body"><form id="recordForm"><input type="hidden" id="recordId"><div class="form-group"><label>Record ID *</label><input type="text" class="form-control" id="recordIdField" placeholder="Auto-generated" readonly></div><div class="form-group"><label>Patient *</label><select class="form-control" id="recordPatient" required><option value="">Select Patient</option></select></div><div class="form-group"><label>Doctor *</label><select class="form-control" id="recordDoctor" required><option value="">Select Doctor</option></select></div><div class="form-group"><label>Visit Date</label><input type="date" class="form-control" id="visitDate"></div><div class="form-grid"><div class="form-group"><label>Blood Pressure</label><input type="text" class="form-control" id="bp" placeholder="120/80"></div><div class="form-group"><label>Heart Rate</label><input type="text" class="form-control" id="heartRate" placeholder="72 bpm"></div><div class="form-group"><label>Temperature</label><input type="text" class="form-control" id="temperature" placeholder="38°C"></div><div class="form-group"><label>Weight</label><input type="text" class="form-control" id="weight" placeholder="kg"></div><div class="form-group"><label>Height</label><input type="text" class="form-control" id="height" placeholder="cm"></div></div><div class="form-group"><label>Symptoms</label><textarea class="form-control" id="symptoms" rows="2"></textarea></div><div class="form-group"><label>Diagnosis</label><textarea class="form-control" id="diagnosis" rows="2"></textarea></div><div class="form-group"><label>Treatment</label><textarea class="form-control" id="treatment" rows="2"></textarea></div><div class="form-group"><label>Sick Leave (Days)</label><input type="number" class="form-control" id="sickLeave" placeholder="e.g., 3" min="0"></div><div class="form-group"><label>Follow-up Required?</label><div class="d-flex gap-2 align-center"><input type="checkbox" id="followUpRequired" onchange="toggleFollowUpDate()"><label for="followUpRequired" style="margin: 0; font-weight: normal;">Patient needs to return for follow-up</label></div></div><div class="form-group" id="followUpDateGroup" style="display: none;"><label>Follow-up Date *</label><input type="date" class="form-control" id="followUpDate" min=""><small class="text-muted">Select the date for patient's return visit</small></div><div class="form-group" id="followUpNotesGroup" style="display: none;"><label>Follow-up Notes</label><textarea class="form-control" id="followUpNotes" rows="2" placeholder="e.g., Bring lab results, come fasting, etc."></textarea></div><div class="form-group"><label>Notes</label><textarea class="form-control" id="recordNotes" rows="2"></textarea></div><div class="form-group"><label>External Reports (No Limit - Stored in IndexedDB)</label><div id="multiReportContainer"><div class="multi-upload-area" onclick="document.getElementById('multiReportInput').click()"><i>📎</i><p>Click to upload external reports (PDF, Images, DOC)</p><small>Max file size: 5MB per file - Unlimited files - Stored in IndexedDB</small></div><input type="file" id="multiReportInput" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" style="display: none;" multiple onchange="handleMultiReportSelect(event)"><div id="multiReportPreview" class="report-files-container" style="display: none;"></div><button type="button" class="btn btn-sm btn-info add-more-files-btn" onclick="document.getElementById('multiReportInput').click()">➕ Add More Files</button></div><div id="storageWarning" class="storage-warning">⚠️ Storage limit warning: Large files may affect performance. Consider using file references instead.</div></div></form></div><div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('recordModal')">Cancel</button><button class="btn btn-primary" onclick="saveMedicalRecord()">Save Record</button></div></div></div>
+        <!-- Record Modal with Employee ID Search Field -->
+        <div id="recordModal" class="modal"><div class="modal-content"><div class="modal-header"><h3>Add Medical Record</h3><span class="close" onclick="closeModal('recordModal')">&times;</span></div><div class="modal-body"><form id="recordForm"><input type="hidden" id="recordId"><div class="form-group"><label>Record ID *</label><input type="text" class="form-control" id="recordIdField" placeholder="Auto-generated" readonly></div>
+        <!-- Employee ID Search Field - NEW FEATURE -->
+        <div class="form-group">
+            <label>Search by Employee ID</label>
+            <div class="employee-search-group">
+                <input type="text" class="form-control" id="employeeIdSearch" placeholder="Enter Employee ID (e.g., 000376)" autocomplete="off">
+                <button type="button" class="btn btn-info btn-sm" onclick="searchPatientByEmployeeId()">🔍 Search</button>
+            </div>
+            <div id="employeeSearchResults" class="search-result-popup" style="display: none;"></div>
+            <small class="text-muted">Type Employee ID and click Search to auto-fill patient details</small>
+        </div>
+        <div class="form-group"><label>Patient *</label><select class="form-control" id="recordPatient" required><option value="">Select Patient</option></select></div>
+        <div class="form-group"><label>Doctor *</label><select class="form-control" id="recordDoctor" required><option value="">Select Doctor</option></select></div>
+        <div class="form-group"><label>Visit Date</label><input type="date" class="form-control" id="visitDate"></div>
+        <div class="form-grid"><div class="form-group"><label>Blood Pressure</label><input type="text" class="form-control" id="bp" placeholder="120/80"></div><div class="form-group"><label>Heart Rate</label><input type="text" class="form-control" id="heartRate" placeholder="72 bpm"></div><div class="form-group"><label>Temperature</label><input type="text" class="form-control" id="temperature" placeholder="38°C"></div><div class="form-group"><label>Weight</label><input type="text" class="form-control" id="weight" placeholder="kg"></div><div class="form-group"><label>Height</label><input type="text" class="form-control" id="height" placeholder="cm"></div></div>
+        <div class="form-group"><label>Symptoms</label><textarea class="form-control" id="symptoms" rows="2"></textarea></div>
+        <div class="form-group"><label>Diagnosis</label><textarea class="form-control" id="diagnosis" rows="2"></textarea></div>
+        <div class="form-group"><label>Treatment</label><textarea class="form-control" id="treatment" rows="2"></textarea></div>
+        <div class="form-group"><label>Sick Leave (Days)</label><input type="number" class="form-control" id="sickLeave" placeholder="e.g., 3" min="0"></div>
+        <div class="form-group"><label>Follow-up Required?</label><div class="d-flex gap-2 align-center"><input type="checkbox" id="followUpRequired" onchange="toggleFollowUpDate()"><label for="followUpRequired" style="margin: 0; font-weight: normal;">Patient needs to return for follow-up</label></div></div>
+        <div class="form-group" id="followUpDateGroup" style="display: none;"><label>Follow-up Date *</label><input type="date" class="form-control" id="followUpDate" min=""><small class="text-muted">Select the date for patient's return visit</small></div>
+        <div class="form-group" id="followUpNotesGroup" style="display: none;"><label>Follow-up Notes</label><textarea class="form-control" id="followUpNotes" rows="2" placeholder="e.g., Bring lab results, come fasting, etc."></textarea></div>
+        <div class="form-group"><label>Notes</label><textarea class="form-control" id="recordNotes" rows="2"></textarea></div>
+        <div class="form-group"><label>External Reports (No Limit - Stored in IndexedDB)</label><div id="multiReportContainer"><div class="multi-upload-area" onclick="document.getElementById('multiReportInput').click()"><i>📎</i><p>Click to upload external reports (PDF, Images, DOC)</p><small>Max file size: 5MB per file - Unlimited files - Stored in IndexedDB</small></div><input type="file" id="multiReportInput" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" style="display: none;" multiple onchange="handleMultiReportSelect(event)"><div id="multiReportPreview" class="report-files-container" style="display: none;"></div><button type="button" class="btn btn-sm btn-info add-more-files-btn" onclick="document.getElementById('multiReportInput').click()">➕ Add More Files</button></div><div id="storageWarning" class="storage-warning">⚠️ Storage limit warning: Large files may affect performance. Consider using file references instead.</div></div></form></div><div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('recordModal')">Cancel</button><button class="btn btn-primary" onclick="saveMedicalRecord()">Save Record</button></div></div></div>
 
         <!-- Prescription Modal -->
         <div id="prescriptionModal" class="modal"><div class="modal-content"><div class="modal-header"><h3 id="prescriptionModalTitle">New Prescription</h3><span class="close" onclick="closeModal('prescriptionModal')">&times;</span></div><div class="modal-body"><form id="prescriptionForm"><input type="hidden" id="prescriptionId"><div class="form-group"><label>Prescription ID</label><input type="text" class="form-control" id="prescriptionIdField" readonly><small class="text-muted">Unique prescription ID (auto-generated)</small></div><div class="form-group"><label>Employee ID *</label><input type="text" class="form-control" id="prescriptionEmployeeId" placeholder="Enter Employee ID" required onkeyup="autoPopulatePatientFromEmployeeId()" onchange="autoPopulatePatientFromEmployeeId()"><small class="text-muted">Will be formatted to 6 digits</small></div><div class="form-group"><label>Patient *</label><select class="form-control" id="prescriptionPatient" required><option value="">Select Patient</option></select></div><div class="form-group"><label>Doctor *</label><select class="form-control" id="prescriptionDoctor" required><option value="">Select Doctor</option></select></div><div class="form-group"><label>Medication *</label><input type="text" class="form-control" id="medication" required></div><div class="form-grid"><div class="form-group"><label>Dosage</label><input type="text" class="form-control" id="dosage" placeholder="e.g., 500mg"></div><div class="form-group"><label>Frequency</label><select class="form-control" id="frequency"><option value="Once daily">Once daily</option><option value="Twice daily">Twice daily</option><option value="Three times daily">Three times daily</option><option value="Four times daily">Four times daily</option><option value="Every 4 hours">Every 4 hours</option><option value="Every 6 hours">Every 6 hours</option><option value="Every 8 hours">Every 8 hours</option><option value="As needed">As needed</option></select></div><div class="form-group"><label>Duration</label><input type="text" class="form-control" id="duration" placeholder="e.g., 7 days"></div></div><div class="form-group"><label>Sick Leave (Days)</label><input type="number" class="form-control" id="prescriptionSickLeave" placeholder="e.g., 3" min="0"></div><div class="form-group"><label>Instructions</label><textarea class="form-control" id="prescriptionInstructions" rows="2"></textarea></div></form></div><div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('prescriptionModal')">Cancel</button><button class="btn btn-primary" onclick="savePrescription()">Save Prescription</button></div></div></div>
@@ -1771,10 +1826,10 @@
         <div id="inventoryModal" class="modal"><div class="modal-content"><div class="modal-header"><h3>Add Inventory Item</h3><span class="close" onclick="closeModal('inventoryModal')">&times;</span></div><div class="modal-body"><form id="inventoryForm"><input type="hidden" id="inventoryId"><div class="form-group"><label>Item ID *</label><input type="text" class="form-control" id="inventoryIdField" placeholder="e.g., ITM001" required></div><div class="form-group"><label>Item Name *</label><input type="text" class="form-control" id="itemName" required></div><div class="form-group"><label>Category</label><select class="form-control" id="itemCategory"><option value="Medicine">Medicine</option><option value="Equipment">Equipment</option><option value="Supplies">Supplies</option><option value="Other">Other</option></select></div><div class="form-grid"><div class="form-group"><label>Quantity</label><input type="number" class="form-control" id="itemQuantity" value="0"></div><div class="form-group"><label>Unit</label><select class="form-control" id="itemUnit"><option value="pcs">Pieces</option><option value="bottles">Bottles</option><option value="boxes">Boxes</option><option value="mg">mg</option><option value="ml">ml</option><option value="g">g</option></select></div><div class="form-group"><label>Date of Manufacturing</label><input type="date" class="form-control" id="manufacturingDate"></div><div class="form-group"><label>Expiry Date</label><input type="date" class="form-control" id="expiryDate"></div></div><div class="form-group"><label>Supplier</label><input type="text" class="form-control" id="supplier"></div></form></div><div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('inventoryModal')">Cancel</button><button class="btn btn-primary" onclick="saveInventoryItem()">Save Item</button></div></div></div>
 
         <!-- Request Modal -->
-        <div id="requestModal" class="modal"><div class="modal-content" style="max-width: 900px;"><div class="modal-header"><h3>📝 Medicine/Supply Request Form</h3><span class="close" onclick="closeModal('requestModal')">&times;</span></div><div class="modal-body"><div class="request-instructions mb-3"><p><strong>Email will be sent to:</strong> admin.manager@almutahida.com.iq; admin.assistant@almutahida.com.iq; admin.supervisor@almutahida.com.iq</p></div><div id="requestItemsContainer"></div><button class="add-more-btn" onclick="addRequestItem()">➕ Add Another Item</button><div class="request-summary" id="requestSummary" style="display: none;"><h4>Request Summary</h4><p>Total items: <span id="summaryItemCount">0</span></p><div style="max-height: 150px; overflow-y: auto;"><table style="min-width: 100%; font-size:0.9rem;"><thead> <tr><th>Medicine</th><th>Brand</th><th>Quantity</th><th>Needed By</th></tr> </thead><tbody id="summaryTableBody"></tbody></table></div></div></div><div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('requestModal')">Cancel</button><button class="btn btn-success" onclick="submitRequest()">📨 Submit Request & Send Email</button></div></div></div>
+        <div id="requestModal" class="modal"><div class="modal-content" style="max-width: 900px;"><div class="modal-header"><h3>📝 Medicine/Supply Request Form</h3><span class="close" onclick="closeModal('requestModal')">&times;</span></div><div class="modal-body"><div class="request-instructions mb-3"><p><strong>Email will be sent to:</strong> admin.manager@almutahida.com.iq; admin.assistant@almutahida.com.iq; admin.supervisor@almutahida.com.iq</p></div><div id="requestItemsContainer"></div><button class="add-more-btn" onclick="addRequestItem()">➕ Add Another Item</button><div class="request-summary" id="requestSummary" style="display: none;"><h4>Request Summary</h4><p>Total items: <span id="summaryItemCount">0</span></p><div style="max-height: 150px; overflow-y: auto;"><table style="min-width: 100%; font-size:0.9rem;"><thead>  <th>Medicine</th><th>Brand</th><th>Quantity</th><th>Needed By</th> </thead><tbody id="summaryTableBody"></tbody> </table></div></div></div><div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('requestModal')">Cancel</button><button class="btn btn-success" onclick="submitRequest()">📨 Submit Request & Send Email</button></div></div></div>
 
         <!-- Follow-up Modal -->
-        <div id="followUpModal" class="modal"><div class="modal-content" style="max-width: 900px;"><div class="modal-header"><h3>📅 Follow-up Management</h3><span class="close" onclick="closeModal('followUpModal')">&times;</span></div><div class="modal-body"><div class="search-bar"><input type="text" class="search-input" id="followUpSearch" placeholder="Search patient..." onkeyup="searchFollowUps()"><select class="form-control" style="width: 150px;" id="followUpStatusFilter" onchange="searchFollowUps()"><option value="all">All</option><option value="pending">Pending</option><option value="completed">Completed</option><option value="missed">Missed</option></select><select class="form-control" style="width: 150px;" id="followUpDateFilter" onchange="searchFollowUps()"><option value="all">All Dates</option><option value="today">Today</option><option value="tomorrow">Tomorrow</option><option value="thisweek">This Week</option><option value="overdue">Overdue</option></select></div><div class="table-container"> <table> <thead> <tr><th>Patient</th><th>Doctor</th><th>Due Date</th><th>Status</th><th>Notes</th><th>Created By</th><th>Actions</th></tr> </thead><tbody id="followUpsTableBody"></tbody> </table></div><div class="mt-3"><button class="btn btn-success" onclick="exportFollowUps()">📤 Export Follow-ups</button><button class="btn btn-info" onclick="printFollowUps()">🖨️ Print List</button></div></div></div></div>
+        <div id="followUpModal" class="modal"><div class="modal-content" style="max-width: 900px;"><div class="modal-header"><h3>📅 Follow-up Management</h3><span class="close" onclick="closeModal('followUpModal')">&times;</span></div><div class="modal-body"><div class="search-bar"><input type="text" class="search-input" id="followUpSearch" placeholder="Search patient..." onkeyup="searchFollowUps()"><select class="form-control" style="width: 150px;" id="followUpStatusFilter" onchange="searchFollowUps()"><option value="all">All</option><option value="pending">Pending</option><option value="completed">Completed</option><option value="missed">Missed</option></select><select class="form-control" style="width: 150px;" id="followUpDateFilter" onchange="searchFollowUps()"><option value="all">All Dates</option><option value="today">Today</option><option value="tomorrow">Tomorrow</option><option value="thisweek">This Week</option><option value="overdue">Overdue</option></select></div><div class="table-container"> <table> <thead> <tr><th>Patient</th><th>Doctor</th><th>Due Date</th><th>Status</th><th>Notes</th><th>Created By</th><th>Actions</th> </tr> </thead><tbody id="followUpsTableBody"></tbody> </table></div><div class="mt-3"><button class="btn btn-success" onclick="exportFollowUps()">📤 Export Follow-ups</button><button class="btn btn-info" onclick="printFollowUps()">🖨️ Print List</button></div></div></div></div>
 
         <!-- Sick Leave Modal -->
         <div id="sickLeaveModal" class="modal"><div class="modal-content" style="max-width: 800px;"><div class="modal-header"><h3>🩺 Issue Sick Leave</h3><span class="close" onclick="closeModal('sickLeaveModal')">&times;</span></div><div class="modal-body"><form id="sickLeaveForm" class="sick-leave-form"><div class="form-grid"><div class="form-group"><label>Select Patient *</label><select class="form-control" id="sickLeavePatient" required><option value="">Select Patient</option></select></div><div class="form-group"><label>Employee ID</label><input type="text" class="form-control" id="sickLeaveEmployeeId" readonly></div><div class="form-group"><label>Department</label><input type="text" class="form-control" id="sickLeaveDepartment" readonly></div><div class="form-group"><label>Position</label><input type="text" class="form-control" id="sickLeavePosition" placeholder="e.g., Engineer, Technician"></div></div><div class="form-grid"><div class="form-group"><label>Sick Leave Start Date *</label><input type="datetime-local" class="form-control" id="sickLeaveStart" required></div><div class="form-group"><label>Sick Leave End Date *</label><input type="datetime-local" class="form-control" id="sickLeaveEnd" required></div></div><div class="form-group"><label>Explanation / Reason *</label><textarea class="form-control" id="sickLeaveExplanation" rows="3" required placeholder="Describe the reason for sick leave..."></textarea></div><div class="form-group"><label>Additional Notes</label><textarea class="form-control" id="sickLeaveNotes" rows="2"></textarea></div><div class="signature-area"><div class="signature-box"><div class="doctor-signature" id="doctorSignatureDisplay"></div><div class="signature-line"></div><div><strong>Doctor/Nurse Signature</strong></div><div id="doctorNameDisplay"></div></div><div class="signature-box"><div class="signature-line" style="border-top: 2px solid #000; margin: 30px 0 10px;"></div><div><strong>Employee Signature</strong></div><div style="font-size: 0.9rem; color: #6c757d;">(To be signed upon receipt)</div></div></div><div class="form-group"><label>Company Stamp (Optional)</label><div class="d-flex gap-2 align-center"><input type="checkbox" id="includeStamp" checked><label for="includeStamp">Include company stamp on document</label></div></div></form></div><div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('sickLeaveModal')">Cancel</button><button class="btn btn-primary" onclick="previewSickLeave()">Preview</button><button class="btn btn-success" onclick="generateSickLeavePDF()">📄 Generate Sick Leave PDF</button></div></div></div>
@@ -1787,15 +1842,15 @@
         // ==================== GLOBAL VARIABLES ====================
         const SETTINGS_PASSWORD = 'Password@123456';
         const USERS = {
-            'AlmutahidaClinic': { password: 'Clinic123', doctor: 'Dr. Emad Jabbar Najim Jabbar Najim' },
-            'AlmutahidaClinic2': { password: 'Password2', doctor: 'Dr. Mustafa Abbas Hussien Abbas' }
+            'AlmutahidaClinic': { password: 'Clinic123', doctor: 'Dr. Emad Jabbar Najim' },
+            'AlmutahidaClinic2': { password: 'Password2', doctor: 'Dr. Mustafa Abbas Hussien' }
         };
         
         let currentPatientPage = 1;
         let currentPrescriptionPage = 1;
         const pageSize = 50;
         let departments = ['IT', 'HR', 'Helper'];
-        let doctors = ['Dr. Emad Jabbar Najim Jabbar Najim', 'Dr. Mustafa Abbas Hussien Abbas Hussien'];
+        let doctors = ['Dr. Emad Jabbar Najim', 'Dr. Mustafa Abbas Hussien'];
         let currentUser = '';
         let currentUserDoctor = '';
         let currentHistoryPatient = null;
@@ -1964,6 +2019,9 @@
             if (modalId === 'recordModal') {
                 clearMultiReports();
                 document.getElementById('recordForm').reset();
+                // Clear employee search results
+                document.getElementById('employeeIdSearch').value = '';
+                document.getElementById('employeeSearchResults').style.display = 'none';
             }
             if (modalId === 'requestModal') requestItems = [];
             if (modalId === 'sickLeaveModal' || modalId === 'sickLeavePreviewModal') document.getElementById('sickLeaveForm')?.reset();
@@ -1974,6 +2032,62 @@
             document.getElementById('currentDate').textContent = now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
             document.getElementById('currentTime').textContent = now.toLocaleTimeString();
         }
+
+        // ==================== EMPLOYEE ID SEARCH FOR MEDICAL RECORD ====================
+        async function searchPatientByEmployeeId() {
+            const empId = document.getElementById('employeeIdSearch').value.trim();
+            if (!empId) {
+                showAlert('Please enter an Employee ID', 'warning');
+                return;
+            }
+            
+            const formattedId = formatAsSixDigits(empId);
+            const patients = await getAllPatients();
+            const matchedPatient = patients.find(p => p.id === formattedId);
+            const resultsDiv = document.getElementById('employeeSearchResults');
+            
+            if (matchedPatient) {
+                // Auto-select the patient
+                const patientSelect = document.getElementById('recordPatient');
+                patientSelect.value = matchedPatient.id;
+                resultsDiv.style.display = 'none';
+                showAlert(`Patient found: ${matchedPatient.fullName}`, 'success');
+                // Also auto-populate any additional fields if needed
+            } else {
+                // Show suggestions
+                const suggestions = patients.filter(p => p.id.includes(formattedId) || p.id.includes(empId));
+                if (suggestions.length > 0) {
+                    resultsDiv.innerHTML = suggestions.map(p => `
+                        <div class="search-result-item-popup" onclick="selectPatientFromSearch('${p.id}', '${p.fullName}')">
+                            <strong>${p.id}</strong> - ${p.fullName}<br>
+                            <small>${p.department || 'No dept'} | ${p.phone || 'No phone'}</small>
+                        </div>
+                    `).join('');
+                    resultsDiv.style.display = 'block';
+                } else {
+                    resultsDiv.innerHTML = '<div class="search-result-item-popup">No patient found with this ID</div>';
+                    resultsDiv.style.display = 'block';
+                    setTimeout(() => { resultsDiv.style.display = 'none'; }, 3000);
+                }
+            }
+        }
+        
+        function selectPatientFromSearch(patientId, patientName) {
+            const patientSelect = document.getElementById('recordPatient');
+            patientSelect.value = patientId;
+            document.getElementById('employeeSearchResults').style.display = 'none';
+            document.getElementById('employeeIdSearch').value = patientId;
+            showAlert(`Selected: ${patientName}`, 'success');
+        }
+        
+        // Close search results when clicking outside
+        document.addEventListener('click', function(e) {
+            const searchContainer = document.querySelector('.employee-search-group');
+            const resultsDiv = document.getElementById('employeeSearchResults');
+            if (searchContainer && !searchContainer.contains(e.target)) {
+                if (resultsDiv) resultsDiv.style.display = 'none';
+            }
+        });
 
         // Multi-report functions with IndexedDB storage
         let tempFileIds = []; // Store temporary file IDs for the current record being edited
@@ -2173,7 +2287,7 @@
             const logs = await getAllActivityLogs();
             const tbody = document.getElementById('activityLogTableBody');
             const filtered = logs.slice(0, 100);
-            if (filtered.length === 0) tbody.innerHTML = '<tr><td colspan="5" class="text-center">No activity logs found</td></tr>';
+            if (filtered.length === 0) tbody.innerHTML = '<td colspan="5" class="text-center">No activity logs found</td>';
             else {
                 tbody.innerHTML = filtered.map(log => `
                     <tr>
@@ -2233,7 +2347,7 @@
             else localStorage.setItem('departments', JSON.stringify(departments));
             const savedDoctors = localStorage.getItem('doctors');
             if (savedDoctors) doctors = JSON.parse(savedDoctors);
-            else { doctors = ['Dr. Emad Jabbar Najim Jabbar Najim', 'Dr. Mustafa Abbas Hussien Abbas Hussien']; localStorage.setItem('doctors', JSON.stringify(doctors)); }
+            else { doctors = ['Dr. Emad Jabbar Najim', 'Dr. Mustafa Abbas Hussien']; localStorage.setItem('doctors', JSON.stringify(doctors)); }
             updateDepartmentDropdowns();
             updateDoctorDropdowns();
         }
@@ -2254,8 +2368,8 @@
                 const select = document.getElementById(id);
                 if (select) {
                     const currentValue = select.value;
-                    if (currentUser === 'AlmutahidaClinic2') select.innerHTML = '<option value="">Select Doctor</option><option value="Dr. Mustafa Abbas Hussien Abbas">Dr. Mustafa Abbas Hussien Abbas</option>';
-                    else select.innerHTML = '<option value="">Select Doctor</option><option value="Dr. Emad Jabbar Najim Jabbar Najim">Dr. Emad Jabbar Najim Jabbar Najim</option>';
+                    if (currentUser === 'AlmutahidaClinic2') select.innerHTML = '<option value="">Select Doctor</option><option value="Dr. Mustafa Abbas Hussien">Dr. Mustafa Abbas Hussien</option>';
+                    else select.innerHTML = '<option value="">Select Doctor</option><option value="Dr. Emad Jabbar Najim">Dr. Emad Jabbar Najim</option>';
                     if (!currentValue || currentValue === '') select.value = currentUserDoctor;
                     else if (currentValue && doctors.includes(currentValue)) select.value = currentValue;
                 }
@@ -2340,7 +2454,7 @@
             let html = `<div class="card-header"><h3>📅 Patient Follow-ups ${overdueFollowUps.length > 0 ? `<span class="follow-up-badge overdue">${overdueFollowUps.length} Overdue</span>` : ''}${todayFollowUps.length > 0 ? `<span class="follow-up-badge today">${todayFollowUps.length} Today</span>` : ''}${upcomingFollowUps.length > 0 ? `<span class="follow-up-badge upcoming">${upcomingFollowUps.length} Upcoming</span>` : ''}</h3><button class="btn btn-sm btn-primary" onclick="openFollowUpModal()">Manage All</button></div><div class="card-body">`;
             if (overdueFollowUps.length > 0 || todayFollowUps.length > 0 || upcomingFollowUps.length > 0) {
                 if (overdueFollowUps.length > 0) {
-                    html += `<div class="follow-up-overdue"><strong>⚠️ OVERDUE FOLLOW-UPS (${overdueFollowUps.length})</strong></div><div class="table-container mb-3" style="max-height:200px;"> <table> <thead> <tr><th>Patient</th><th>Doctor</th><th>Due Date</th><th>Days Overdue</th><th>Notes</th><th>Action</th></tr> </thead><tbody>${overdueFollowUps.slice(0,5).map(f => { const due = new Date(f.followUpDate); const days = Math.floor((today - due) / 86400000); return `<tr><td><strong>${f.patientName}</strong></td><td>${f.doctorName}</td><td class="text-danger">${due.toLocaleDateString()}</td><td class="text-danger">${days} days</td><td>${f.notes || '-'}</td><td><button class="btn btn-sm btn-success" onclick="markFollowUpCompleted('${f.id}')">✓ Complete</button></td></tr>`; }).join('')}${overdueFollowUps.length > 5 ? `<tr><td colspan="6" class="text-center text-warning">... and ${overdueFollowUps.length - 5} more</td></tr>` : ''}</tbody></table></div>`;
+                    html += `<div class="follow-up-overdue"><strong>⚠️ OVERDUE FOLLOW-UPS (${overdueFollowUps.length})</strong></div><div class="table-container mb-3" style="max-height:200px;"> 表格 <thead>  <th>Patient</th><th>Doctor</th><th>Due Date</th><th>Days Overdue</th><th>Notes</th><th>Action</th> </thead><tbody>${overdueFollowUps.slice(0,5).map(f => { const due = new Date(f.followUpDate); const days = Math.floor((today - due) / 86400000); return `<tr><td><strong>${f.patientName}</strong></td><td>${f.doctorName}</td><td class="text-danger">${due.toLocaleDateString()}</td><td class="text-danger">${days} days</td><td>${f.notes || '-'}</td><td><button class="btn btn-sm btn-success" onclick="markFollowUpCompleted('${f.id}')">✓ Complete</button></td></tr>`; }).join('')}${overdueFollowUps.length > 5 ? `<tr><td colspan="6" class="text-center text-warning">... and ${overdueFollowUps.length - 5} more</td></tr>` : ''}</tbody> </table></div>`;
                 }
                 if (todayFollowUps.length > 0) {
                     html += `<div class="follow-up-today"><strong>📅 TODAY'S FOLLOW-UPS (${todayFollowUps.length})</strong></div><div class="table-container mb-3" style="max-height:200px;"><table><thead><tr><th>Patient</th><th>Doctor</th><th>Due Date</th><th>Notes</th><th>Action</th></tr></thead><tbody>${todayFollowUps.map(f => `<tr><td><strong>${f.patientName}</strong></td><td>${f.doctorName}</td><td>${new Date(f.followUpDate).toLocaleDateString()}</td><td>${f.notes || '-'}</td><td><button class="btn btn-sm btn-success" onclick="markFollowUpCompleted('${f.id}')">✓ Complete</button></td></tr>`).join('')}</tbody></table></div>`;
@@ -2450,216 +2564,216 @@
             document.getElementById('sickLeavePreviewModal').style.display = 'block';
         }
         async function generateSickLeavePDF() {
-    const patientId = document.getElementById('sickLeavePatient').value;
-    const patientName = document.getElementById('sickLeavePatient').selectedOptions[0]?.text.split(' (')[0] || 'N/A';
-    const employeeId = document.getElementById('sickLeaveEmployeeId').value;
-    const department = document.getElementById('sickLeaveDepartment').value;
-    const position = document.getElementById('sickLeavePosition').value || 'Employee';
-    const startDate = document.getElementById('sickLeaveStart').value;
-    const endDate = document.getElementById('sickLeaveEnd').value;
-    const explanation = document.getElementById('sickLeaveExplanation').value;
-    const notes = document.getElementById('sickLeaveNotes').value;
-    const includeStamp = document.getElementById('includeStamp').checked;
-    
-    if (!patientId || !employeeId || !startDate || !endDate || !explanation) { 
-        showAlert('Please fill required fields', 'warning'); 
-        return; 
-    }
-    
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-    doc.setProperties({ title: `Sick Leave - ${patientName}`, author: currentUserDoctor });
-    
-    // Function to load image as base64
-    const loadImageAsBase64 = (url) => {
-        return new Promise((resolve, reject) => {
-            const img = new Image();
-            img.crossOrigin = "Anonymous";
-            img.onload = () => {
-                const canvas = document.createElement('canvas');
-                canvas.width = img.width;
-                canvas.height = img.height;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0);
-                const dataURL = canvas.toDataURL('image/png');
-                resolve(dataURL);
+            const patientId = document.getElementById('sickLeavePatient').value;
+            const patientName = document.getElementById('sickLeavePatient').selectedOptions[0]?.text.split(' (')[0] || 'N/A';
+            const employeeId = document.getElementById('sickLeaveEmployeeId').value;
+            const department = document.getElementById('sickLeaveDepartment').value;
+            const position = document.getElementById('sickLeavePosition').value || 'Employee';
+            const startDate = document.getElementById('sickLeaveStart').value;
+            const endDate = document.getElementById('sickLeaveEnd').value;
+            const explanation = document.getElementById('sickLeaveExplanation').value;
+            const notes = document.getElementById('sickLeaveNotes').value;
+            const includeStamp = document.getElementById('includeStamp').checked;
+            
+            if (!patientId || !employeeId || !startDate || !endDate || !explanation) { 
+                showAlert('Please fill required fields', 'warning'); 
+                return; 
+            }
+            
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+            doc.setProperties({ title: `Sick Leave - ${patientName}`, author: currentUserDoctor });
+            
+            // Function to load image as base64
+            const loadImageAsBase64 = (url) => {
+                return new Promise((resolve, reject) => {
+                    const img = new Image();
+                    img.crossOrigin = "Anonymous";
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        canvas.width = img.width;
+                        canvas.height = img.height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0);
+                        const dataURL = canvas.toDataURL('image/png');
+                        resolve(dataURL);
+                    };
+                    img.onerror = () => {
+                        console.warn('Could not load logo image, continuing without logo');
+                        resolve(null);
+                    };
+                    img.src = url;
+                });
             };
-            img.onerror = () => {
-                console.warn('Could not load logo image, continuing without logo');
-                resolve(null);
-            };
-            img.src = url;
-        });
-    };
-    
-    // Try to load the logo
-    let logoDataUrl = null;
-    try {
-        // Try relative path first
-        logoDataUrl = await loadImageAsBase64('logo.png');
-        if (!logoDataUrl) {
-            // Try absolute path
-            logoDataUrl = await loadImageAsBase64('/logo.png');
+            
+            // Try to load the logo
+            let logoDataUrl = null;
+            try {
+                // Try relative path first
+                logoDataUrl = await loadImageAsBase64('logo.png');
+                if (!logoDataUrl) {
+                    // Try absolute path
+                    logoDataUrl = await loadImageAsBase64('/logo.png');
+                }
+                if (!logoDataUrl) {
+                    // Try with full URL
+                    const fullUrl = window.location.origin + '/logo.png';
+                    logoDataUrl = await loadImageAsBase64(fullUrl);
+                }
+            } catch(e) {
+                console.warn('Logo loading failed:', e);
+            }
+            
+            let y = 20;
+            
+            // Add logo if available
+            if (logoDataUrl) {
+                try {
+                    doc.addImage(logoDataUrl, 'PNG', 85, y - 5, 40, 20);
+                } catch(e) {
+                    console.warn('Failed to add logo to PDF:', e);
+                }
+            }
+            
+            y += 15;
+            
+            // Header background
+            doc.setFillColor(245, 247, 250);
+            doc.rect(10, y, 190, 40, 'F');
+            doc.setTextColor(0, 51, 102);
+            doc.setFontSize(14);
+            doc.setFont('helvetica', 'bold');
+            doc.text('ALMUTAHIDA PACKAGING', 105, y + 15, { align: 'center' });
+            
+            // Title
+            doc.setFontSize(20);
+            doc.setTextColor(0, 51, 102);
+            doc.setFont('helvetica', 'bold');
+            doc.text('SICK LEAVE CERTIFICATE', 105, y, { align: 'center' });
+            
+            y += 15;
+            doc.setFontSize(10);
+            doc.setTextColor(44, 62, 80);
+            doc.text(`Date: ${new Date().toLocaleDateString()}`, 10, y);
+            y += 15;
+            
+            // Patient info table
+            const infoData = [
+                ['Employee ID:', employeeId],
+                ['Employee Name:', patientName],
+                ['Department:', department || 'N/A'],
+                ['Position:', position],
+                ['Leave Start:', new Date(startDate).toLocaleString()],
+                ['Leave End:', new Date(endDate).toLocaleString()]
+            ];
+            
+            infoData.forEach((row, i) => {
+                const rowY = y + (i * 10);
+                doc.setFillColor(245, 247, 250);
+                doc.rect(10, rowY - 5, 50, 8, 'F');
+                doc.setTextColor(0, 51, 102);
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(9);
+                doc.text(row[0], 12, rowY);
+                doc.setTextColor(44, 62, 80);
+                doc.setFont('helvetica', 'normal');
+                doc.text(row[1], 65, rowY);
+                doc.setDrawColor(200, 200, 200);
+                doc.line(10, rowY + 2, 200, rowY + 2);
+            });
+            
+            y += (infoData.length * 10) + 15;
+            
+            // Reason section
+            doc.setFillColor(245, 247, 250);
+            doc.rect(10, y - 5, 190, 40, 'F');
+            doc.setDrawColor(255, 102, 0);
+            doc.line(10, y - 5, 10, y + 35);
+            doc.setTextColor(0, 51, 102);
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(11);
+            doc.text('REASON FOR SICK LEAVE:', 15, y + 2);
+            doc.setTextColor(44, 62, 80);
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(10);
+            const splitExp = doc.splitTextToSize(explanation, 170);
+            doc.text(splitExp, 15, y + 10);
+            
+            if (notes) {
+                y += 45;
+                doc.setFillColor(245, 247, 250);
+                doc.rect(10, y - 5, 190, 25, 'F');
+                doc.setTextColor(0, 51, 102);
+                doc.setFont('helvetica', 'bold');
+                doc.text('ADDITIONAL NOTES:', 15, y + 2);
+                doc.setTextColor(44, 62, 80);
+                doc.setFont('helvetica', 'normal');
+                const splitNotes = doc.splitTextToSize(notes, 170);
+                doc.text(splitNotes, 15, y + 10);
+                y += 25;
+            } else {
+                y += 45;
+            }
+            
+            y += 15;
+            
+            // Signatures
+            doc.setFillColor(245, 247, 250);
+            doc.rect(10, y, 85, 40, 'F');
+            doc.setTextColor(255, 102, 0);
+            doc.setFont('helvetica', 'italic');
+            doc.setFontSize(14);
+            doc.text(currentUserDoctor, 15, y + 15);
+            doc.setDrawColor(0, 51, 102);
+            doc.line(15, y + 20, 85, y + 20);
+            doc.setTextColor(0, 51, 102);
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(10);
+            doc.text('Doctor/Nurse Signature', 15, y + 25);
+            doc.setTextColor(44, 62, 80);
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(9);
+            doc.text(currentUserDoctor, 15, y + 32);
+            
+            doc.setFillColor(245, 247, 250);
+            doc.rect(115, y, 85, 40, 'F');
+            doc.setDrawColor(0, 51, 102);
+            doc.line(120, y + 20, 190, y + 20);
+            doc.setTextColor(0, 51, 102);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Employee Signature', 120, y + 25);
+            doc.setTextColor(100, 100, 100);
+            doc.setFontSize(8);
+            doc.text('(To be signed upon receipt)', 120, y + 32);
+            
+            // Stamp
+            if (includeStamp) {
+                doc.setDrawColor(255, 102, 0);
+                doc.roundedRect(150, y + 55, 50, 25, 3, 3, 'S');
+                doc.setTextColor(0, 51, 102);
+                doc.setFontSize(8);
+                doc.text('ALMUTAHIDA', 175, y + 63, { align: 'center' });
+                doc.text('PACKAGING', 175, y + 68, { align: 'center' });
+                doc.setFontSize(6);
+                doc.text('MEDICAL CLINIC', 175, y + 73, { align: 'center' });
+            }
+            
+            // Footer
+            doc.setDrawColor(200, 200, 200);
+            doc.line(10, 275, 200, 275);
+            doc.setTextColor(150, 150, 150);
+            doc.setFontSize(7);
+            doc.text('This is a computer-generated document.', 105, 280, { align: 'center' });
+            doc.text(`© ${new Date().getFullYear()} ALMUTAHIDA PACKAGING - Medical Clinic`, 105, 285, { align: 'center' });
+            
+            // Save the PDF
+            doc.save(`Sick_Leave_${patientName.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`);
+            
+            await addActivityLog('Generate Sick Leave', `Generated sick leave for ${patientName}`, 'success');
+            closeModal('sickLeaveModal');
+            closeModal('sickLeavePreviewModal');
+            showAlert('Sick leave PDF generated!', 'success');
         }
-        if (!logoDataUrl) {
-            // Try with full URL
-            const fullUrl = window.location.origin + '/logo.png';
-            logoDataUrl = await loadImageAsBase64(fullUrl);
-        }
-    } catch(e) {
-        console.warn('Logo loading failed:', e);
-    }
-    
-    let y = 20;
-    
-    // Add logo if available
-    if (logoDataUrl) {
-        try {
-            doc.addImage(logoDataUrl, 'PNG', 85, y - 5, 40, 20);
-        } catch(e) {
-            console.warn('Failed to add logo to PDF:', e);
-        }
-    }
-    
-    y += 15;
-    
-    // Header background
-    doc.setFillColor(245, 247, 250);
-    doc.rect(10, y, 190, 40, 'F');
-    doc.setTextColor(0, 51, 102);
-    doc.setFontSize(14);
-    doc.setFont('helvetica', 'bold');
-    doc.text('ALMUTAHIDA PACKAGING', 105, y + 15, { align: 'center' });
-    
-    // Title
-    doc.setFontSize(20);
-    doc.setTextColor(0, 51, 102);
-    doc.setFont('helvetica', 'bold');
-    doc.text('SICK LEAVE CERTIFICATE', 105, y, { align: 'center' });
-    
-    y += 15;
-    doc.setFontSize(10);
-    doc.setTextColor(44, 62, 80);
-    doc.text(`Date: ${new Date().toLocaleDateString()}`, 10, y);
-    y += 15;
-    
-    // Patient info table
-    const infoData = [
-        ['Employee ID:', employeeId],
-        ['Employee Name:', patientName],
-        ['Department:', department || 'N/A'],
-        ['Position:', position],
-        ['Leave Start:', new Date(startDate).toLocaleString()],
-        ['Leave End:', new Date(endDate).toLocaleString()]
-    ];
-    
-    infoData.forEach((row, i) => {
-        const rowY = y + (i * 10);
-        doc.setFillColor(245, 247, 250);
-        doc.rect(10, rowY - 5, 50, 8, 'F');
-        doc.setTextColor(0, 51, 102);
-        doc.setFont('helvetica', 'bold');
-        doc.setFontSize(9);
-        doc.text(row[0], 12, rowY);
-        doc.setTextColor(44, 62, 80);
-        doc.setFont('helvetica', 'normal');
-        doc.text(row[1], 65, rowY);
-        doc.setDrawColor(200, 200, 200);
-        doc.line(10, rowY + 2, 200, rowY + 2);
-    });
-    
-    y += (infoData.length * 10) + 15;
-    
-    // Reason section
-    doc.setFillColor(245, 247, 250);
-    doc.rect(10, y - 5, 190, 40, 'F');
-    doc.setDrawColor(255, 102, 0);
-    doc.line(10, y - 5, 10, y + 35);
-    doc.setTextColor(0, 51, 102);
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(11);
-    doc.text('REASON FOR SICK LEAVE:', 15, y + 2);
-    doc.setTextColor(44, 62, 80);
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(10);
-    const splitExp = doc.splitTextToSize(explanation, 170);
-    doc.text(splitExp, 15, y + 10);
-    
-    if (notes) {
-        y += 45;
-        doc.setFillColor(245, 247, 250);
-        doc.rect(10, y - 5, 190, 25, 'F');
-        doc.setTextColor(0, 51, 102);
-        doc.setFont('helvetica', 'bold');
-        doc.text('ADDITIONAL NOTES:', 15, y + 2);
-        doc.setTextColor(44, 62, 80);
-        doc.setFont('helvetica', 'normal');
-        const splitNotes = doc.splitTextToSize(notes, 170);
-        doc.text(splitNotes, 15, y + 10);
-        y += 25;
-    } else {
-        y += 45;
-    }
-    
-    y += 15;
-    
-    // Signatures
-    doc.setFillColor(245, 247, 250);
-    doc.rect(10, y, 85, 40, 'F');
-    doc.setTextColor(255, 102, 0);
-    doc.setFont('helvetica', 'italic');
-    doc.setFontSize(14);
-    doc.text(currentUserDoctor, 15, y + 15);
-    doc.setDrawColor(0, 51, 102);
-    doc.line(15, y + 20, 85, y + 20);
-    doc.setTextColor(0, 51, 102);
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(10);
-    doc.text('Doctor/Nurse Signature', 15, y + 25);
-    doc.setTextColor(44, 62, 80);
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(9);
-    doc.text(currentUserDoctor, 15, y + 32);
-    
-    doc.setFillColor(245, 247, 250);
-    doc.rect(115, y, 85, 40, 'F');
-    doc.setDrawColor(0, 51, 102);
-    doc.line(120, y + 20, 190, y + 20);
-    doc.setTextColor(0, 51, 102);
-    doc.setFont('helvetica', 'bold');
-    doc.text('Employee Signature', 120, y + 25);
-    doc.setTextColor(100, 100, 100);
-    doc.setFontSize(8);
-    doc.text('(To be signed upon receipt)', 120, y + 32);
-    
-    // Stamp
-    if (includeStamp) {
-        doc.setDrawColor(255, 102, 0);
-        doc.roundedRect(150, y + 55, 50, 25, 3, 3, 'S');
-        doc.setTextColor(0, 51, 102);
-        doc.setFontSize(8);
-        doc.text('ALMUTAHIDA', 175, y + 63, { align: 'center' });
-        doc.text('PACKAGING', 175, y + 68, { align: 'center' });
-        doc.setFontSize(6);
-        doc.text('MEDICAL CLINIC', 175, y + 73, { align: 'center' });
-    }
-    
-    // Footer
-    doc.setDrawColor(200, 200, 200);
-    doc.line(10, 275, 200, 275);
-    doc.setTextColor(150, 150, 150);
-    doc.setFontSize(7);
-    doc.text('This is a computer-generated document.', 105, 280, { align: 'center' });
-    doc.text(`© ${new Date().getFullYear()} ALMUTAHIDA PACKAGING - Medical Clinic`, 105, 285, { align: 'center' });
-    
-    // Save the PDF
-    doc.save(`Sick_Leave_${patientName.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`);
-    
-    await addActivityLog('Generate Sick Leave', `Generated sick leave for ${patientName}`, 'success');
-    closeModal('sickLeaveModal');
-    closeModal('sickLeavePreviewModal');
-    showAlert('Sick leave PDF generated!', 'success');
-}
 
         // ==================== PATIENTS (with Full Name) ====================
         async function getAllPatients() { const p = localStorage.getItem('patients'); return p ? JSON.parse(p) : []; }
@@ -2676,7 +2790,7 @@
             const start = (page-1)*pageSize;
             const paginated = patients.slice(start, start+pageSize);
             const tbody = document.getElementById('patientsTableBody');
-            if (paginated.length === 0) tbody.innerHTML = '<tr><td colspan="10" class="text-center">No patients found</td></tr>';
+            if (paginated.length === 0) tbody.innerHTML = '<td colspan="10" class="text-center">No patients found</td>';
             else {
                 tbody.innerHTML = paginated.map(p => `
                     <tr>
@@ -2690,7 +2804,7 @@
                         <td>${p.bloodGroup||'-'}</td>
                         <td>${p.photo ? `<img src="${p.photo}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;">` : '<span class="badge badge-info">No Photo</span>'}</td>
                         <td><button class="btn btn-sm btn-info" onclick="editPatient('${p.id}')">✏️</button><button class="btn btn-sm btn-success" onclick="showMedicalCard('${p.id}')">🪪</button><button class="btn btn-sm btn-danger" onclick="deletePatient('${p.id}')">🗑️</button></td>
-                     </tr>
+                      </tr>
                 `).join('');
             }
             renderPagination('patientPagination', patients.length, page, 'loadPatients');
@@ -2703,18 +2817,18 @@
             if (dept !== 'all' && dept) patients = patients.filter(p => p.department === dept);
             const tbody = document.getElementById('patientsTableBody');
             tbody.innerHTML = patients.slice(0,50).map(p => `
-                <tr>
-                    <td>${p.id}</td>
-                    <td>${p.fullName}</td>
-                    <td>${p.dob||'-'}</td>
-                    <td>${p.gender||'-'}</td>
-                    <td>${p.phone||'-'}</td>
-                    <td>${p.email||'-'}</td>
-                    <td>${p.department||'-'}</td>
-                    <td>${p.bloodGroup||'-'}</td>
-                    <td>${p.photo ? `<img src="${p.photo}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;">` : '<span class="badge badge-info">No Photo</span>'}</td>
-                    <td><button class="btn btn-sm btn-info" onclick="editPatient('${p.id}')">✏️</button><button class="btn btn-sm btn-success" onclick="showMedicalCard('${p.id}')">🪪</button><button class="btn btn-sm btn-danger" onclick="deletePatient('${p.id}')">🗑️</button></td>
-                 </tr>
+                 <tr>
+                     <td>${p.id}</td>
+                     <td>${p.fullName}</td>
+                     <td>${p.dob||'-'}</td>
+                     <td>${p.gender||'-'}</td>
+                     <td>${p.phone||'-'}</td>
+                     <td>${p.email||'-'}</td>
+                     <td>${p.department||'-'}</td>
+                     <td>${p.bloodGroup||'-'}</td>
+                     <td>${p.photo ? `<img src="${p.photo}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;">` : '<span class="badge badge-info">No Photo</span>'}</td>
+                     <td><button class="btn btn-sm btn-info" onclick="editPatient('${p.id}')">✏️</button><button class="btn btn-sm btn-success" onclick="showMedicalCard('${p.id}')">🪪</button><button class="btn btn-sm btn-danger" onclick="deletePatient('${p.id}')">🗑️</button></td>
+                  </tr>
             `).join('');
         }
         function openPatientModal(id = null) {
@@ -2859,7 +2973,7 @@
             if (importDuplicates.length) { warningsDiv.style.display = 'block'; warningsDiv.innerHTML = '<strong>⚠️ Warnings:</strong><br>' + importDuplicates.map(d => `Row ${d.row}: ${d.reason}`).join('<br>'); }
             else warningsDiv.style.display = 'none';
             const previewDiv = document.getElementById('importPreviewTable');
-            if (importValidRows.length) previewDiv.innerHTML = `表格<thead> 落地<th>ID</th><th>Full Name</th><th>Phone</th><th>Dept</th> </thead><tbody>${importValidRows.slice(0,10).map(p => `实践<td>${p.id}</td><td>${p.fullName}</td><td>${p.phone||'-'}</td><td>${p.department||'-'}</td> </tr>`).join('')}${importValidRows.length>10?`<tr><td colspan="4">... and ${importValidRows.length-10} more</td></tr>`:''}</tbody> </table>`;
+            if (importValidRows.length) previewDiv.innerHTML = `表格<thead> <th>ID</th><th>Full Name</th><th>Phone</th><th>Dept</th> </thead><tbody>${importValidRows.slice(0,10).map(p => `  <td>${p.id}</td><td>${p.fullName}</td><td>${p.phone||'-'}</td><td>${p.department||'-'}</td> </tr>`).join('')}${importValidRows.length>10?`<tr><td colspan="4">... and ${importValidRows.length-10} more</td></tr>`:''}</tbody>  `;
             else previewDiv.innerHTML = '<div class="text-center">No valid rows</div>';
             document.getElementById('importButton').disabled = importValidRows.length === 0;
         }
@@ -2890,17 +3004,17 @@
             const records = await getAllMedicalRecords();
             const followUps = await getAllFollowUps();
             let filtered = records;
-            if (currentUser === 'AlmutahidaClinic2') filtered = records.filter(r => r.doctorName === 'Dr. Mustafa Abbas Hussien Abbas');
-            else if (currentUser === 'AlmutahidaClinic') filtered = records.filter(r => r.doctorName === 'Dr. Emad Jabbar Najim Jabbar Najim');
+            if (currentUser === 'AlmutahidaClinic2') filtered = records.filter(r => r.doctorName === 'Dr. Mustafa Abbas Hussien');
+            else if (currentUser === 'AlmutahidaClinic') filtered = records.filter(r => r.doctorName === 'Dr. Emad Jabbar Najim');
             filtered.sort((a,b) => (b.visitDate||'').localeCompare(a.visitDate||''));
             const tbody = document.getElementById('recordsTableBody');
-            if (!filtered.length) tbody.innerHTML = '.<td colspan="10" class="text-center">No records found';
+            if (!filtered.length) tbody.innerHTML = '<td colspan="10" class="text-center">No records found';
             else {
                 tbody.innerHTML = filtered.slice(0,50).map(r => {
                     const hasFollowUp = followUps.some(f => f.recordId === r.id && f.status === 'pending');
                     const reportCount = r.externalReports ? r.externalReports.length : 0;
                     return `
-                        <tr>
+                         <tr>
                             <td>${r.id}</td>
                              <td>${r.visitDate||'-'}</td>
                              <td>${r.patientName} (${r.patientId})</td>
@@ -2911,7 +3025,7 @@
                              <td>${reportCount > 0 ? `<button class="btn btn-sm btn-info" onclick='viewMultiReports(${JSON.stringify(r.externalReports).replace(/'/g, "&#39;")})'>📎 ${reportCount} file(s)</button>` : '<span class="badge">None</span>'}</td>
                              <td><span class="badge ${hasFollowUp?'badge-warning':'badge-secondary'}">${hasFollowUp?'⚠️ Pending':'None'}</span></td>
                              <td><button class="btn btn-sm btn-info" onclick="viewRecord('${r.id}')">👁️</button><button class="btn btn-sm btn-warning" onclick="openRecordModal('${r.id}')">✏️</button></td>
-                         </tr>
+                          </tr>
                     `;
                 }).join('');
             }
@@ -2923,18 +3037,22 @@
             document.getElementById('followUpRequired').checked = false;
             document.getElementById('followUpDateGroup').style.display = 'none';
             document.getElementById('followUpNotesGroup').style.display = 'none';
+            // Clear employee search field
+            document.getElementById('employeeIdSearch').value = '';
+            document.getElementById('employeeSearchResults').style.display = 'none';
+            
             getAllPatients().then(patients => {
                 const select = document.getElementById('recordPatient');
                 select.innerHTML = '<option value="">Select Patient</option>' + patients.map(p => `<option value="${p.id}">${p.fullName} (ID: ${p.id})</option>`).join('');
             });
             const doctorSelect = document.getElementById('recordDoctor');
-            if (currentUser === 'AlmutahidaClinic2') doctorSelect.innerHTML = '<option value="">Select Doctor</option><option value="Dr. Mustafa Abbas Hussien Abbas">Dr. Mustafa Abbas Hussien Abbas</option>';
-            else doctorSelect.innerHTML = '<option value="">Select Doctor</option><option value="Dr. Emad Jabbar Najim Jabbar Najim">Dr. Emad Jabbar Najim Jabbar Najim</option>';
+            if (currentUser === 'AlmutahidaClinic2') doctorSelect.innerHTML = '<option value="">Select Doctor</option><option value="Dr. Mustafa Abbas Hussien">Dr. Mustafa Abbas Hussien</option>';
+            else doctorSelect.innerHTML = '<option value="">Select Doctor</option><option value="Dr. Emad Jabbar Najim">Dr. Emad Jabbar Najim</option>';
             if (id) {
                 getAllMedicalRecords().then(records => {
                     const r = records.find(r => r.id == id);
                     if (r) {
-                        if ((currentUser==='AlmutahidaClinic2' && r.doctorName!=='Dr. Mustafa Abbas Hussien Abbas') || (currentUser==='AlmutahidaClinic' && r.doctorName!=='Dr. Emad Jabbar Najim')) { showAlert('Cannot edit others\' records', 'warning'); closeModal('recordModal'); return; }
+                        if ((currentUser==='AlmutahidaClinic2' && r.doctorName!=='Dr. Mustafa Abbas Hussien') || (currentUser==='AlmutahidaClinic' && r.doctorName!=='Dr. Emad Jabbar Najim')) { showAlert('Cannot edit others\' records', 'warning'); closeModal('recordModal'); return; }
                         document.getElementById('recordId').value = r.id;
                         document.getElementById('recordIdField').value = r.id;
                         document.getElementById('recordPatient').value = r.patientId;
@@ -2966,14 +3084,14 @@
             const term = document.getElementById('recordSearch').value.toLowerCase();
             getAllMedicalRecords().then(records => {
                 let filtered = records;
-                if (currentUser === 'AlmutahidaClinic2') filtered = records.filter(r => r.doctorName === 'Dr. Mustafa Abbas Hussien Abbas');
+                if (currentUser === 'AlmutahidaClinic2') filtered = records.filter(r => r.doctorName === 'Dr. Mustafa Abbas Hussien');
                 else if (currentUser === 'AlmutahidaClinic') filtered = records.filter(r => r.doctorName === 'Dr. Emad Jabbar Najim');
                 const f = filtered.filter(r => (r.patientName||'').toLowerCase().includes(term) || (r.patientId||'').toLowerCase().includes(term));
                 const tbody = document.getElementById('recordsTableBody');
                 tbody.innerHTML = f.slice(0,50).map(r => {
                     const reportCount = r.externalReports ? r.externalReports.length : 0;
                     return `
-                        <tr>
+                         <tr>
                             <td>${r.id}</td>
                              <td>${r.visitDate||'-'}</td>
                              <td>${r.patientName} (${r.patientId})</td>
@@ -2984,7 +3102,7 @@
                              <td>${reportCount > 0 ? `<button class="btn btn-sm btn-info" onclick='viewMultiReports(${JSON.stringify(r.externalReports).replace(/'/g, "&#39;")})'>📎 ${reportCount} file(s)</button>` : '<span class="badge">None</span>'}</td>
                              <td>${r.followUpRequired?'⚠️ Yes':'No'}</td>
                              <td><button class="btn btn-sm btn-info" onclick="viewRecord('${r.id}')">👁️</button><button class="btn btn-sm btn-warning" onclick="openRecordModal('${r.id}')">✏️</button></td>
-                         </tr>
+                          </tr>
                     `;
                 }).join('');
             });
@@ -3008,7 +3126,7 @@
             if (!recordId && records.some(r => r.id == newId)) { showAlert('ID exists', 'danger'); return; }
             if (recordId) {
                 const existing = records.find(r => r.id == recordId);
-                if (existing && ((currentUser==='AlmutahidaClinic2' && existing.doctorName!=='Dr. Mustafa Abbas Hussien Abbas') || (currentUser==='AlmutahidaClinic' && existing.doctorName!=='Dr. Emad Jabbar Najim'))) { showAlert('Cannot edit others\' records', 'danger'); return; }
+                if (existing && ((currentUser==='AlmutahidaClinic2' && existing.doctorName!=='Dr. Mustafa Abbas Hussien') || (currentUser==='AlmutahidaClinic' && existing.doctorName!=='Dr. Emad Jabbar Najim'))) { showAlert('Cannot edit others\' records', 'danger'); return; }
             }
             const followUpRequired = document.getElementById('followUpRequired')?.checked || false;
             const followUpDate = document.getElementById('followUpDate')?.value || null;
@@ -3083,13 +3201,13 @@
             const patientSelect = document.getElementById('prescriptionPatient');
             patientSelect.innerHTML = '<option value="">Select Patient</option>' + patients.map(p => `<option value="${p.id}">${p.fullName} (ID: ${p.id})</option>`).join('');
             const doctorSelect = document.getElementById('prescriptionDoctor');
-            if (currentUser === 'AlmutahidaClinic2') doctorSelect.innerHTML = '<option value="">Select Doctor</option><option value="Dr. Mustafa Abbas Hussien Abbas">Dr. Mustafa Abbas Hussien Abbas</option>';
+            if (currentUser === 'AlmutahidaClinic2') doctorSelect.innerHTML = '<option value="">Select Doctor</option><option value="Dr. Mustafa Abbas Hussien">Dr. Mustafa Abbas Hussien</option>';
             else doctorSelect.innerHTML = '<option value="">Select Doctor</option><option value="Dr. Emad Jabbar Najim">Dr. Emad Jabbar Najim</option>';
             if (id) {
                 const pres = await getAllPrescriptions();
                 const rx = pres.find(r => r.id == id);
                 if (rx) {
-                    if ((currentUser==='AlmutahidaClinic2' && rx.doctorName!=='Dr. Mustafa Abbas Hussien Abbas') || (currentUser==='AlmutahidaClinic' && rx.doctorName!=='Dr. Emad Jabbar Najim')) { showAlert('Cannot edit others\' prescriptions', 'warning'); closeModal('prescriptionModal'); return; }
+                    if ((currentUser==='AlmutahidaClinic2' && rx.doctorName!=='Dr. Mustafa Abbas Hussien') || (currentUser==='AlmutahidaClinic' && rx.doctorName!=='Dr. Emad Jabbar Najim')) { showAlert('Cannot edit others\' prescriptions', 'warning'); closeModal('prescriptionModal'); return; }
                     document.getElementById('prescriptionId').value = rx.id;
                     document.getElementById('prescriptionIdField').value = rx.id;
                     document.getElementById('prescriptionEmployeeId').value = rx.employeeId || '';
@@ -3135,7 +3253,7 @@
             try {
                 if (prescriptionId && prescriptions.some(r => r.id == prescriptionId)) {
                     const existing = prescriptions.find(r => r.id == prescriptionId);
-                    if ((currentUser==='AlmutahidaClinic2' && existing.doctorName!=='Dr. Mustafa Abbas Hussien Abbas') || (currentUser==='AlmutahidaClinic' && existing.doctorName!=='Dr. Emad Jabbar Najim')) { showAlert('Cannot edit others\' prescriptions', 'danger'); return; }
+                    if ((currentUser==='AlmutahidaClinic2' && existing.doctorName!=='Dr. Mustafa Abbas Hussien') || (currentUser==='AlmutahidaClinic' && existing.doctorName!=='Dr. Emad Jabbar Najim')) { showAlert('Cannot edit others\' prescriptions', 'danger'); return; }
                     const idx = prescriptions.findIndex(r => r.id == prescriptionId);
                     if (idx !== -1) { prescriptions[idx] = { ...prescriptions[idx], ...prescription, updatedBy: currentUser, updatedAt: new Date().toISOString() }; await savePrescriptions(prescriptions); await addActivityLog('Update Prescription', `Updated ${prescriptionId}`, 'info'); showAlert('Prescription updated', 'success'); }
                 } else { prescriptions.push(prescription); await savePrescriptions(prescriptions); await addActivityLog('Add Prescription', `Added ${prescriptionId}`, 'success'); showAlert('Prescription saved', 'success'); }
@@ -3148,16 +3266,16 @@
             currentPrescriptionPage = page;
             let prescriptions = await getAllPrescriptions();
             prescriptions.sort((a,b) => (b.prescribedDate||'').localeCompare(a.prescribedDate||''));
-            if (currentUser === 'AlmutahidaClinic2') prescriptions = prescriptions.filter(p => p.doctorName === 'Dr. Mustafa Abbas Hussien Abbas');
+            if (currentUser === 'AlmutahidaClinic2') prescriptions = prescriptions.filter(p => p.doctorName === 'Dr. Mustafa Abbas Hussien');
             else if (currentUser === 'AlmutahidaClinic') prescriptions = prescriptions.filter(p => p.doctorName === 'Dr. Emad Jabbar Najim');
             const start = (page-1)*pageSize;
             const paginated = prescriptions.slice(start, start+pageSize);
             const tbody = document.getElementById('prescriptionsTableBody');
-            if (!paginated.length) tbody.innerHTML = '.<td colspan="10" class="text-center">No prescriptions found';
+            if (!paginated.length) tbody.innerHTML = '<td colspan="10" class="text-center">No prescriptions found';
             else {
                 tbody.innerHTML = paginated.map(rx => `
                     <tr>
-                        <td>${rx.id}</td>
+                                                 <td>${rx.id}</td>
                          <td>${rx.employeeId||'-'}</td>
                          <td>${rx.prescribedDate||'-'}</td>
                          <td>${rx.patientName} (${rx.patientId})</td>
@@ -3167,7 +3285,7 @@
                          <td>${rx.frequency||'-'}</td>
                          <td>${rx.sickLeave?rx.sickLeave+' days':'-'}</td>
                          <td><button class="btn btn-sm btn-info" onclick="openPrescriptionModal('${rx.id}')">✏️</button><button class="btn btn-sm btn-success" onclick="printPrescription('${rx.id}')">🖨️</button><button class="btn btn-sm btn-danger" onclick="deletePrescription('${rx.id}')">🗑️</button></td>
-                     </tr>
+                      </tr>
                 `).join('');
             }
             renderPagination('prescriptionPagination', prescriptions.length, page, 'loadPrescriptions');
@@ -3176,7 +3294,7 @@
             if (confirm('Delete this prescription?')) {
                 const prescriptions = await getAllPrescriptions();
                 const rx = prescriptions.find(p => p.id == id);
-                if ((currentUser==='AlmutahidaClinic2' && rx?.doctorName!=='Dr. Mustafa Abbas Hussien Abbas') || (currentUser==='AlmutahidaClinic' && rx?.doctorName!=='Dr. Emad Jabbar Najim')) { showAlert('Cannot delete others\' prescriptions', 'danger'); return; }
+                if ((currentUser==='AlmutahidaClinic2' && rx?.doctorName!=='Dr. Mustafa Abbas Hussien') || (currentUser==='AlmutahidaClinic' && rx?.doctorName!=='Dr. Emad Jabbar Najim')) { showAlert('Cannot delete others\' prescriptions', 'danger'); return; }
                 const filtered = prescriptions.filter(r => r.id != id);
                 await savePrescriptions(filtered);
                 if (rx) await addActivityLog('Delete Prescription', `Deleted ${id}`, 'warning');
@@ -3188,22 +3306,23 @@
             const term = document.getElementById('prescriptionSearch').value.toLowerCase();
             getAllPrescriptions().then(prescriptions => {
                 let filtered = prescriptions;
-                if (currentUser === 'AlmutahidaClinic2') filtered = prescriptions.filter(p => p.doctorName === 'Dr. Mustafa Abbas Hussien Abbas');
+                if (currentUser === 'AlmutahidaClinic2') filtered = prescriptions.filter(p => p.doctorName === 'Dr. Mustafa Abbas Hussien');
                 else if (currentUser === 'AlmutahidaClinic') filtered = prescriptions.filter(p => p.doctorName === 'Dr. Emad Jabbar Najim');
                 const f = filtered.filter(rx => (rx.patientName||'').toLowerCase().includes(term) || (rx.patientId||'').toLowerCase().includes(term) || (rx.employeeId||'').toLowerCase().includes(term) || (rx.id||'').toLowerCase().includes(term));
                 const tbody = document.getElementById('prescriptionsTableBody');
                 tbody.innerHTML = f.slice(0,50).map(rx => `
                     <tr>
                         <td>${rx.id}</td>
-                         <td>${rx.employeeId||'-'}</td>
-                         <td>${rx.prescribedDate||'-'}</td>
-                         <td>${rx.patientName} (${rx.patientId})</td>
-                         <td>${rx.doctorName}</td>
-                         <td>${rx.medicationName||'-'}</td>
-                         <td>${rx.dosage||'-'}</td>
-                         <td>${rx.frequency||'-'}</td>
-                         <td>${rx.sickLeave?rx.sickLeave+' days':'-'}</td>
-                         <td><button class="btn btn-sm btn-info" onclick="openPrescriptionModal('${rx.id}')">✏️</button><button class="btn btn-sm btn-success" onclick="printPrescription('${rx.id}')">🖨️</button><button class="btn btn-sm btn-danger" onclick="deletePrescription('${rx.id}')">🗑️</button>  </tr>
+                        <td>${rx.employeeId||'-'}</td>
+                        <td>${rx.prescribedDate||'-'}</td>
+                        <td>${rx.patientName} (${rx.patientId})</td>
+                        <td>${rx.doctorName}</td>
+                        <td>${rx.medicationName||'-'}</td>
+                        <td>${rx.dosage||'-'}</td>
+                        <td>${rx.frequency||'-'}</td>
+                        <td>${rx.sickLeave?rx.sickLeave+' days':'-'}</td>
+                        <td><button class="btn btn-sm btn-info" onclick="openPrescriptionModal('${rx.id}')">✏️</button><button class="btn btn-sm btn-success" onclick="printPrescription('${rx.id}')">🖨️</button><button class="btn btn-sm btn-danger" onclick="deletePrescription('${rx.id}')">🗑️</button></td>
+                    </tr>
                 `).join('');
             });
         }
@@ -3214,7 +3333,7 @@
                     getAllPatients().then(patients => {
                         const patient = patients.find(p => p.id == rx.patientId);
                         const win = window.open('', '_blank');
-                        win.document.write(`<html><head><title>Prescription ${rx.id}</title><style>body{font-family:Arial;padding:30px;}.header{text-align:center;margin-bottom:30px;}.med-table{width:100%;border-collapse:collapse;margin-top:20px;}.med-table th,.med-table td{border:1px solid #ddd;padding:10px;}.signature{margin-top:30px;border-top:1px solid #000;width:200px;text-align:center;padding-top:5px;}</style></head><body><div class="header"><h1>Almutahida Co. Clinic</h1><p>Medical Prescription</p></div><div><p><strong>Prescription ID:</strong> ${rx.id}</p><p><strong>Employee ID:</strong> ${rx.employeeId}</p><p><strong>Date:</strong> ${rx.prescribedDate}</p><p><strong>Patient:</strong> ${rx.patientName} (${rx.patientId})</p><p><strong>Doctor:</strong> ${rx.doctorName}</p></div><table class="med-table"><thead>  <th>Medication</th><th>Dosage</th><th>Frequency</th><th>Duration</th> </thead><tbody>   <td>${rx.medicationName}</td><td>${rx.dosage||'As directed'}</td><td>${rx.frequency||'As needed'}</td><td>${rx.duration||'As prescribed'}</td> </tbody> </table>${rx.sickLeave?`<div style="background:#f39c12;color:white;padding:10px;margin:20px 0;"><strong>SICK LEAVE:</strong> ${rx.sickLeave} days</div>`:''}<div><p><strong>Instructions:</strong> ${rx.instructions||'Take as directed'}</p></div><div class="signature">Doctor's Signature<br>${rx.doctorName}</div></body></html>`);
+                        win.document.write(`<html><head><title>Prescription ${rx.id}</title><style>body{font-family:Arial;padding:30px;}.header{text-align:center;margin-bottom:30px;}.med-table{width:100%;border-collapse:collapse;margin-top:20px;}.med-table th,.med-table td{border:1px solid #ddd;padding:10px;}.signature{margin-top:30px;border-top:1px solid #000;width:200px;text-align:center;padding-top:5px;}</style></head><body><div class="header"><h1>Almutahida Co. Clinic</h1><p>Medical Prescription</p></div><div><p><strong>Prescription ID:</strong> ${rx.id}</p><p><strong>Employee ID:</strong> ${rx.employeeId}</p><p><strong>Date:</strong> ${rx.prescribedDate}</p><p><strong>Patient:</strong> ${rx.patientName} (${rx.patientId})</p><p><strong>Doctor:</strong> ${rx.doctorName}</p></div><table class="med-table"><thead><tr><th>Medication</th><th>Dosage</th><th>Frequency</th><th>Duration</th></tr></thead><tbody><tr><td>${rx.medicationName}</td><td>${rx.dosage||'As directed'}</td><td>${rx.frequency||'As needed'}</td><td>${rx.duration||'As prescribed'}</td></tr></tbody></table>${rx.sickLeave?`<div style="background:#f39c12;color:white;padding:10px;margin:20px 0;"><strong>SICK LEAVE:</strong> ${rx.sickLeave} days</div>`:''}<div><p><strong>Instructions:</strong> ${rx.instructions||'Take as directed'}</p></div><div class="signature">Doctor's Signature<br>${rx.doctorName}</div></body></html>`);
                         win.document.close();
                         win.print();
                         addActivityLog('Print Prescription', `Printed ${rx.id}`, 'info');
@@ -3229,7 +3348,7 @@
         async function loadInventory() {
             const inventory = await getAllInventory();
             const tbody = document.getElementById('inventoryTableBody');
-            if (!inventory.length) tbody.innerHTML = '.<td colspan="9" class="text-center">No items';
+            if (!inventory.length) tbody.innerHTML = '<td colspan="9" class="text-center">No items';
             else {
                 const today = new Date().toISOString().split('T')[0];
                 tbody.innerHTML = inventory.map(item => {
@@ -3242,16 +3361,16 @@
                     else if (near) { status = 'Near Expiry'; statusClass = 'badge-warning'; }
                     return `
                         <tr>
-                            <td>${item.id}  </td>
-                             <td>${item.itemName}  </td>
-                             <td>${item.category||'Medicine'}  </td>
-                            <td class="${low?'text-danger':''}">${item.quantity}  </td>
-                             <td>${item.unit||'pcs'}  </td>
-                             <td>${item.manufacturingDate||'-'}  </td>
-                            <td class="${expired||near?'text-danger':''}">${item.expiryDate||'-'}  </td>
-                             <td><span class="badge ${statusClass}">${status}</span>  </td>
-                             <td><button class="btn btn-sm btn-info" onclick="openInventoryModal('${item.id}')">✏️</button><button class="btn btn-sm btn-danger" onclick="deleteInventoryItem('${item.id}')">🗑️</button>  </td>
-                         </tr>
+                            <td>${item.id}</td>
+                            <td>${item.itemName}</td>
+                            <td>${item.category||'Medicine'}</td>
+                            <td class="${low?'text-danger':''}">${item.quantity}</td>
+                            <td>${item.unit||'pcs'}</td>
+                            <td>${item.manufacturingDate||'-'}</td>
+                            <td class="${expired||near?'text-danger':''}">${item.expiryDate||'-'}</td>
+                            <td><span class="badge ${statusClass}">${status}</span></td>
+                            <td><button class="btn btn-sm btn-info" onclick="openInventoryModal('${item.id}')">✏️</button><button class="btn btn-sm btn-danger" onclick="deleteInventoryItem('${item.id}')">🗑️</button></td>
+                        </tr>
                     `;
                 }).join('');
             }
@@ -3324,16 +3443,16 @@
                     else if (near) { status = 'Near Expiry'; statusClass = 'badge-warning'; }
                     return `
                         <tr>
-                            <td>${item.id}  </td>
-                             <td>${item.itemName}  </td>
-                             <td>${item.category||'Medicine'}  </td>
-                            <td class="${low?'text-danger':''}">${item.quantity}  </td>
-                             <td>${item.unit||'pcs'}  </td>
-                             <td>${item.manufacturingDate||'-'}  </td>
-                            <td class="${expired||near?'text-danger':''}">${item.expiryDate||'-'}  </td>
-                             <td><span class="badge ${statusClass}">${status}</span>  </td>
-                             <td><button class="btn btn-sm btn-info" onclick="openInventoryModal('${item.id}')">✏️</button><button class="btn btn-sm btn-danger" onclick="deleteInventoryItem('${item.id}')">🗑️</button>  </td>
-                         </tr>
+                            <td>${item.id}</td>
+                            <td>${item.itemName}</td>
+                            <td>${item.category||'Medicine'}</td>
+                            <td class="${low?'text-danger':''}">${item.quantity}</td>
+                            <td>${item.unit||'pcs'}</td>
+                            <td>${item.manufacturingDate||'-'}</td>
+                            <td class="${expired||near?'text-danger':''}">${item.expiryDate||'-'}</td>
+                            <td><span class="badge ${statusClass}">${status}</span></td>
+                            <td><button class="btn btn-sm btn-info" onclick="openInventoryModal('${item.id}')">✏️</button><button class="btn btn-sm btn-danger" onclick="deleteInventoryItem('${item.id}')">🗑️</button></td>
+                        </tr>
                     `;
                 }).join('');
             });
@@ -3490,7 +3609,7 @@
             let pres = await getAllPrescriptions();
             if (from) pres = pres.filter(p => p.prescribedDate >= from);
             if (to) pres = pres.filter(p => p.prescribedDate <= to);
-            if (currentUser === 'AlmutahidaClinic2') pres = pres.filter(p => p.doctorName === 'Dr. Mustafa Abbas Hussien Abbas');
+            if (currentUser === 'AlmutahidaClinic2') pres = pres.filter(p => p.doctorName === 'Dr. Mustafa Abbas Hussien');
             else if (currentUser === 'AlmutahidaClinic') pres = pres.filter(p => p.doctorName === 'Dr. Emad Jabbar Najim');
             let r = `PRESCRIPTION REPORT\n${'='.repeat(50)}\nPeriod: ${from||'All'} - ${to||'All'}\nTotal: ${pres.length}\n\n`;
             pres.forEach((p,i) => { r += `${i+1}. ${p.prescribedDate} - ${p.patientName} - ${p.medicationName} (${p.doctorName})\n`; });
@@ -3525,7 +3644,7 @@
                 let pres = await getAllPrescriptions();
                 if (from) pres = pres.filter(p => p.prescribedDate >= from);
                 if (to) pres = pres.filter(p => p.prescribedDate <= to);
-                if (currentUser==='AlmutahidaClinic2') pres = pres.filter(p=>p.doctorName==='Dr. Mustafa Abbas Hussien Abbas');
+                if (currentUser==='AlmutahidaClinic2') pres = pres.filter(p=>p.doctorName==='Dr. Mustafa Abbas Hussien');
                 else if (currentUser==='AlmutahidaClinic') pres = pres.filter(p=>p.doctorName==='Dr. Emad Jabbar Najim');
                 data = pres.map(p => [p.id, p.prescribedDate, p.patientName, p.doctorName, p.medicationName]);
             } else {
@@ -3574,7 +3693,7 @@
             } else { document.getElementById('passwordError').textContent = 'Incorrect password'; addActivityLog('Settings Access Failed', `Failed attempt by ${currentUser}`, 'warning'); }
         }
         function loadDepartmentsList() {
-            document.getElementById('departmentsList').innerHTML = departments.map(d => `<tr><td>${d}</td><td><button class="btn btn-sm btn-danger" onclick="deleteDepartment('${d}')">🗑️</button></td></tr>`).join('');
+            document.getElementById('departmentsList').innerHTML = departments.map(d => `<tr><td>${d}</td><td><button class="btn btn-sm btn-danger" onclick="deleteDepartment('${d}')">🗑️</button></td>`).join('');
         }
         function addDepartment() {
             const newDept = document.getElementById('newDepartment').value.trim();
@@ -3586,8 +3705,8 @@
         }
         function loadDoctorsList() {
             document.getElementById('doctorsList').innerHTML = doctors.map(d => {
-                const canDel = (currentUser==='AlmutahidaClinic' && d!=='Dr. Emad Jabbar Najim' && d!=='Dr. Mustafa Abbas Hussien Abbas') || (currentUser==='AlmutahidaClinic2' && d!=='Dr. Mustafa Abbas Hussien Abbas');
-                return `<tr><td>${d}</td><td>${canDel ? `<button class="btn btn-sm btn-danger" onclick="deleteDoctor('${d}')">🗑️</button>` : '<span class="badge">System</span>'}</td></tr>`;
+                const canDel = (currentUser==='AlmutahidaClinic' && d!=='Dr. Emad Jabbar Najim' && d!=='Dr. Mustafa Abbas Hussien') || (currentUser==='AlmutahidaClinic2' && d!=='Dr. Mustafa Abbas Hussien');
+                return ` <tr><td>${d}</td><td>${canDel ? `<button class="btn btn-sm btn-danger" onclick="deleteDoctor('${d}')">🗑️</button>` : '<span class="badge">System</span>'}</td></tr>`;
             }).join('');
         }
         function addDoctor() {
@@ -3598,7 +3717,7 @@
             doctors.push(newDoc); localStorage.setItem('doctors', JSON.stringify(doctors)); document.getElementById('newDoctor').value = ''; loadDoctorsList(); updateDoctorDropdowns(); addActivityLog('Add Doctor', `Added ${newDoc}`, 'success'); showAlert('Doctor added', 'success');
         }
         function deleteDoctor(doc) {
-            if (doc === 'Dr. Emad Jabbar Najim' || doc === 'Dr. Mustafa Abbas Hussien Abbas') { showAlert('System doctor cannot be deleted', 'danger'); return; }
+            if (doc === 'Dr. Emad Jabbar Najim' || doc === 'Dr. Mustafa Abbas Hussien') { showAlert('System doctor cannot be deleted', 'danger'); return; }
             if (confirm(`Delete ${doc}?`)) { doctors = doctors.filter(d => d !== doc); localStorage.setItem('doctors', JSON.stringify(doctors)); loadDoctorsList(); updateDoctorDropdowns(); addActivityLog('Delete Doctor', `Deleted ${doc}`, 'warning'); showAlert('Deleted', 'success'); }
         }
         async function clearAllData() {
@@ -3675,3 +3794,7 @@
     </script>
 </body>
 </html>
+
+
+
+			
