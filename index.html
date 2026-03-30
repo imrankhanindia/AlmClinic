@@ -2368,8 +2368,8 @@
                 const select = document.getElementById(id);
                 if (select) {
                     const currentValue = select.value;
-                    if (currentUser === 'AlmutahidaClinic2') select.innerHTML = '<option value="">Select Doctor</option><option value="Dr. Mustafa Abbas Hussien">Dr. Mustafa Abbas Hussien</option>';
-                    else select.innerHTML = '<option value="">Select Doctor</option><option value="Dr. Emad Jabbar Najim">Dr. Emad Jabbar Najim</option>';
+                    if (currentUser === 'AlmutahidaClinic2') select.innerHTML = '<option value="">Select Doctor</option><option value="Dr. Mustafa Abbas Hussien"></option>';
+                    else select.innerHTML = '<option value="">Select Doctor</option><option value="Dr. Emad Jabbar Najim"></option>';
                     if (!currentValue || currentValue === '') select.value = currentUserDoctor;
                     else if (currentValue && doctors.includes(currentValue)) select.value = currentValue;
                 }
